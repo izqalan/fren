@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "831541654486",
+    "firebase_url": "https://messenger-15568.firebaseio.com",
+    "project_id": "messenger-15568",
+    "storage_bucket": "messenger-15568.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:831541654486:android:17980d03979ea5a5",
+        "android_client_info": {
+          "package_name": "com.izqalan.messenger"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "831541654486-65s87o9pg0h5de7bp3hpm4r1piprjve7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.izqalan.messenger",
+            "certificate_hash": "4a507ee756175938f4ed489f04ea451b18732890"
+          }
+        },
+        {
+          "client_id": "831541654486-1fk530use5cghl38e7h7es7h746oj1mm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyACe42FuzZRZIORyF6zBY7I682Yv37MK2Y"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "831541654486-1fk530use5cghl38e7h7es7h746oj1mm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
