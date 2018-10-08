@@ -115,8 +115,6 @@ public class RegisterActivity extends AppCompatActivity {
                                         Toast.makeText(RegisterActivity.this, "Willkommen!", Toast.LENGTH_SHORT).show();
                                         regProgress.dismiss();
 
-
-
                                         // go to mainActivity
                                         Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
                                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
