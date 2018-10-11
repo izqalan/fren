@@ -3,6 +3,7 @@ package com.izqalan.messenger;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -33,10 +34,15 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 
 public class SettingsActivity extends AppCompatActivity {
@@ -88,7 +94,12 @@ public class SettingsActivity extends AppCompatActivity {
                 displayname.setText(name);
                 nbio.setText(bio);
                 //
-                Picasso.get().load(image).into(avatar);
+                if(!image.equals("default")){
+                    Picasso.get().load(image).into(avatar);
+                }
+                else {
+                    Picasso.get().load(R.drawable.default_avatar).into(avatar);
+                }
 
 
             }
@@ -170,14 +181,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-//                // open up gallery to choose avi
-//                Intent intent = new Intent();
-//                intent.setType("image/*");
-//                intent.setAction(Intent.ACTION_GET_CONTENT);
-//
-//                startActivityForResult(Intent.createChooser(intent, "Select an image"),1);
-
-//                // third-party img cropper
+                // third-party img cropper
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
                         .setAspectRatio(1,1)
@@ -202,48 +206,181 @@ public class SettingsActivity extends AppCompatActivity {
                 progressDialog.show();
 
                 Uri resultUri = result.getUri();
+                File thumb_uri = new File(resultUri.getPath());
 
                 // make random string for stored image
                 final String userid = currentUser.getUid();
 
-                final StorageReference filepath = firebaseStorage.child("avatar").child(userid+".jpg");
-                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                // image compression
+                Bitmap thumbnail = null;
+                try {
+                    thumbnail = new Compressor(this)
+                            .setMaxHeight(250)
+                            .setMaxWidth(250)
+                            .setQuality(65)
+                            .compressToBitmap(thumb_uri);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                final byte[] thumb_data = baos.toByteArray();
+
+
+
+
+                final StorageReference filepath = firebaseStorage.child("avatar").child(userid+".jpg");
+                final StorageReference thumb_filepath = firebaseStorage.child("avatar").child("thumb").child(userid+".jpg");
+
+                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                     @Override
                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                        if (task.isSuccessful()){
 
+                            UploadTask uploadTask = thumb_filepath.putBytes(thumb_data);
 
-                        if(task.isSuccessful()){
-
-                            // .getDownloadUrl() is an Asynchronous call. need a listener before the url can pass around
-
-                            filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                                 @Override
-                                public void onSuccess(Uri uri) {
-                                    String downloadUrl = uri.toString();
-                                    Log.e("DOWNLOAD URL",downloadUrl);
-                                    userDatabase.child("image").setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
 
-                                            if(task.isSuccessful()){
-                                                progressDialog.dismiss();
-                                                Toast.makeText(SettingsActivity.this,"Uploaded", Toast.LENGTH_SHORT).show();
+
+                                    // save url into firebase storage PROBLEM HERE
+                                    if (task.isSuccessful()){
+                                        final Map update_map = new HashMap();
+                                        // get url
+                                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                String downloadUrl = uri.toString();
+                                                Log.e("downloadUrl", downloadUrl);
+//                                                update_map.put("image", downloadUrl);
+//                                                TODO: Bad solution but it work. need to review again
+                                                userDatabase.child("image").setValue(downloadUrl);
 
                                             }
-                                        }
-                                    });
+
+
+                                        });
+
+                                        thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+                                                String thumb_dowloadUrl = uri.toString();
+                                                Log.e("thumb_dowloadUrl", thumb_dowloadUrl);
+//                                                update_map.put("thumb_image", thumb_dowloadUrl);
+//                                              TODO: Bad solution but it work. need to review again
+                                                userDatabase.child("thumb_image").setValue(thumb_dowloadUrl);
+
+
+                                            }
+                                        });
+
+                                        progressDialog.dismiss();
+                                        Toast.makeText(SettingsActivity.this,"Uploaded", Toast.LENGTH_SHORT).show();
+
+
+//                                        userDatabase.updateChildren(update_map).addOnCompleteListener(new OnCompleteListener() {
+//                                            @Override
+//                                            public void onComplete(@NonNull Task task) {
+//                                                if(task.isSuccessful()){
+//                                                    progressDialog.dismiss();
+//                                                    Toast.makeText(SettingsActivity.this,"Uploaded", Toast.LENGTH_SHORT).show();
+//
+//                                                }
+//                                            }
+//                                        });
+
+
+                                    }
                                 }
                             });
-
-
-                        }else {
-                            progressDialog.dismiss();
-                            Toast.makeText(SettingsActivity.this,"Error", Toast.LENGTH_SHORT).show();
 
                         }
                     }
                 });
+
+
+
+
+
+
+
+//                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//
+//                    @Override
+//                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+//
+//
+//                        if(task.isSuccessful()){
+//
+//                            filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+//                                @Override
+//                                public void onSuccess(Uri uri) {
+//                                    String downloadUrl = uri.toString();
+//                                    Log.e("DOWNLOAD URL",downloadUrl);
+//
+//
+//                                    userDatabase.child("image").setValue(downloadUrl).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                        @Override
+//                                        public void onComplete(@NonNull Task<Void> task) {
+//
+//                                            if(task.isSuccessful()){
+//                                                progressDialog.dismiss();
+//                                                Toast.makeText(SettingsActivity.this,"Uploaded", Toast.LENGTH_SHORT).show();
+//
+//                                            }
+//                                        }
+//                                    });
+//                                }
+//
+//                            });
+//
+//
+////                            UploadTask uploadTask = thumb_filepath.putBytes(thumb_data);
+////
+////                            final String downloadUrl =task.getResult().getStorage().getDownloadUrl().toString();
+////                            Log.e("Download Url", downloadUrl);
+////
+////
+////
+////                            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+////                                @Override
+////                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+////
+////                                    String thumb_downloadUrl = task.getResult().getStorage().getDownloadUrl().toString();
+////                                    Log.e("Thumb_downloadUrl", thumb_downloadUrl);
+////
+////                                    if(task.isSuccessful()){
+////                                        Map update_map = new HashMap();
+////                                        update_map.put("image", downloadUrl);
+////                                        update_map.put("thumb_image", thumb_downloadUrl);
+////
+////                                        userDatabase.updateChildren(update_map).addOnCompleteListener(new OnCompleteListener<Void>() {
+////                                            @Override
+////                                            public void onComplete(@NonNull Task<Void> task) {
+////                                                if(task.isSuccessful()){
+////                                                    progressDialog.dismiss();
+////                                                    Toast.makeText(SettingsActivity.this,"Uploaded", Toast.LENGTH_SHORT).show();
+////
+////                                                }
+////                                            }
+////                                        });
+////                                    }
+//
+////                              .getDownloadUrl() is an Asynchronous call. need a listener before the url can pass around
+//
+//
+//
+//
+//                        }else {
+//                            progressDialog.dismiss();
+//                            Toast.makeText(SettingsActivity.this,"Error", Toast.LENGTH_SHORT).show();
+//
+//                        }
+//                    }
+//                });
 
             } else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
                 Exception error = result.getError();

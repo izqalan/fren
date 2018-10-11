@@ -12,6 +12,7 @@ import android.widget.Toolbar;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -81,15 +82,23 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
 
-        if(item.getItemId() == R.id.main_logout_btn){
-            FirebaseAuth.getInstance().signOut();
-            gotoStart();
+        switch (item.getItemId()){
+            case (R.id.main_logout_btn):
+                FirebaseAuth.getInstance().signOut();
+                gotoStart();
+                break;
+
+            case (R.id.main_settings_btn):
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
+                break;
+
+            case (R.id.main_all_btn):
+                Intent Uintent = new Intent(MainActivity.this, UserActivity.class);
+                startActivity(Uintent);
+                break;
         }
 
-        if(item.getItemId() == R.id.main_settings_btn){
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-        }
 
         return super.onOptionsItemSelected(item);
     }
