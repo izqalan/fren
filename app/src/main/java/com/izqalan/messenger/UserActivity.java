@@ -16,6 +16,7 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -74,6 +75,7 @@ public class UserActivity extends AppCompatActivity {
 
                 holder.setName(model.getName());
                 holder.setBio(model.getBio());
+                holder.setThumbImage(model.getImage());
 
             }
 
@@ -109,6 +111,12 @@ public class UserActivity extends AppCompatActivity {
         public void setBio(String bio){
             TextView bioView = v.findViewById(R.id.user_bio);
             bioView.setText(bio);
+        }
+
+        public  void setThumbImage(String thumb_image){
+            CircleImageView user_avatar = v.findViewById(R.id.user_avatar);
+            Picasso.get().load(thumb_image).into(user_avatar);
+
         }
 
 

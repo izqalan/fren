@@ -89,13 +89,14 @@ public class SettingsActivity extends AppCompatActivity {
                 String name = dataSnapshot.child("name").getValue().toString();
                 String image = dataSnapshot.child("image").getValue().toString();
                 String bio = dataSnapshot.child("bio").getValue().toString();
-                String tumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
 
                 displayname.setText(name);
                 nbio.setText(bio);
                 //
                 if(!image.equals("default")){
                     Picasso.get().load(image).into(avatar);
+
                 }
                 else {
                     Picasso.get().load(R.drawable.default_avatar).into(avatar);
