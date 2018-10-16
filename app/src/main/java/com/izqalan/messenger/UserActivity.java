@@ -1,5 +1,6 @@
 package com.izqalan.messenger;
 
+import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -68,6 +69,7 @@ public class UserActivity extends AppCompatActivity {
                         .setQuery(userDatabase, Users.class )
                         .build();
 
+        // UserViewHolder holds data of users, userid being the key
         adapter = new FirebaseRecyclerAdapter<Users, UserViewHolder>(options) {
 
             @Override
@@ -76,6 +78,21 @@ public class UserActivity extends AppCompatActivity {
                 holder.setName(model.getName());
                 holder.setBio(model.getBio());
                 holder.setThumbImage(model.getImage());
+
+                // get user id from the list
+                final String user_id = getRef(position).getKey();
+
+                holder.v.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+
+                        // send value of id to another page
+                        Intent intent = new Intent(UserActivity.this, ProfileActivity.class);
+                        intent.putExtra("user_id", user_id );
+                        startActivity(intent);
+
+                    }
+                });
 
             }
 
@@ -115,7 +132,7 @@ public class UserActivity extends AppCompatActivity {
 
         public  void setThumbImage(String thumb_image){
             CircleImageView user_avatar = v.findViewById(R.id.user_avatar);
-            Picasso.get().load(thumb_image).into(user_avatar);
+            Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(user_avatar);
 
         }
 

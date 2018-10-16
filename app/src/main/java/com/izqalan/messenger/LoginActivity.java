@@ -59,7 +59,8 @@ public class LoginActivity extends AppCompatActivity {
 
                 if(!TextUtils.isEmpty(log_email) || !TextUtils.isEmpty(log_pwd)){
                     logProgress.setTitle("Please wait...");
-                    logProgress.setMessage("Loggin in to your account");
+                    logProgress.setMessage("Logging in to your account");
+                    logProgress.show();
 
                     loginUser(log_email, log_pwd);
                 }

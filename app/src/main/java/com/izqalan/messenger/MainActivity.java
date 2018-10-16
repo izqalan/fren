@@ -1,6 +1,7 @@
 package com.izqalan.messenger;
 
 import android.content.Intent;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         setActionBar(toolbar);
         getActionBar().setTitle("TBD Messenger");
 
-        // tabs
+        // tabs TABS disini !!
         vp = findViewById(R.id.tabs_pager);
         newPagerAdapter = new nPagerAdapter(getSupportFragmentManager());
 
@@ -48,6 +49,8 @@ public class MainActivity extends AppCompatActivity {
         newTabLayout.setupWithViewPager(vp);
 
     }
+
+
 
     public void onStart() {
         super.onStart();
