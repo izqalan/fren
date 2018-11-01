@@ -30,6 +30,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
@@ -81,13 +83,14 @@ public class SettingsActivity extends AppCompatActivity {
         String uid = currentUser.getUid();
 
         userDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+        userDatabase.keepSynced(true); // stores local copy of data
 
         // addValueEventListener Listenting to query of databse
         userDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String name = dataSnapshot.child("name").getValue().toString();
-                String image = dataSnapshot.child("image").getValue().toString();
+                final String image = dataSnapshot.child("image").getValue().toString();
                 String bio = dataSnapshot.child("bio").getValue().toString();
                 String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
 
@@ -95,7 +98,22 @@ public class SettingsActivity extends AppCompatActivity {
                 nbio.setText(bio);
                 //
                 if(!image.equals("default")){
-                    Picasso.get().load(image).into(avatar);
+                    Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE).into(avatar, new Callback() {
+                        @Override
+                        public void onSuccess() {
+
+                        }
+
+                        @Override
+                        public void onError(Exception e) {
+                            // when image haven't store on disk, picasso look out for image.
+                            Picasso.get()
+                                    .load(image)
+                                    .placeholder(R.drawable.default_avatar)
+                                    .error(R.drawable.default_avatar)
+                                    .into(avatar);
+                        }
+                    });
 
                 }
                 else {

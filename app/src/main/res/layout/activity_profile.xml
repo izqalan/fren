@@ -7,6 +7,19 @@
     tools:context=".ProfileActivity"
     android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
+    <Button
+        android:id="@+id/decline_btn"
+        style="@style/Widget.AppCompat.Button.Colored"
+        android:layout_width="120dp"
+        android:layout_height="39dp"
+        android:layout_above="@+id/add_btn"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="17dp"
+        android:layout_marginBottom="-4dp"
+        android:backgroundTint="@color/colorAccent"
+        android:text="Decline"
+        android:textSize="10sp" />
+
     <ImageView
         android:id="@+id/profile_image"
         android:layout_width="match_parent"
@@ -78,11 +91,11 @@
         android:id="@+id/add_btn"
         style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="120dp"
-        android:layout_height="45dp"
-        android:layout_alignBottom="@+id/app_bar"
+        android:layout_height="39dp"
+        android:layout_above="@+id/tabs_pager"
         android:layout_alignParentEnd="true"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="56dp"
+        android:layout_marginEnd="17dp"
+        android:layout_marginBottom="57dp"
         android:text="@string/send_friend_request"
         android:textSize="10sp" />
 
