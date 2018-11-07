@@ -22,6 +22,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.HashMap;
 
@@ -101,11 +102,13 @@ public class RegisterActivity extends AppCompatActivity {
 
                             // get input and store into firebase realtime db for my use
                             database = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
+                            String deviceToken = FirebaseInstanceId.getInstance().getToken();
                             HashMap<String, String>userMap = new HashMap<>();
                             userMap.put("name", reg_name);
                             userMap.put("bio", "Hi there, I'm using TBD Messenger.");
                             userMap.put("image", "default");
                             userMap.put("thumb_image", "default");
+                            userMap.put("device_token", deviceToken);
 
                             database.setValue(userMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override

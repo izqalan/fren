@@ -6,6 +6,7 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -29,6 +30,7 @@ import com.squareup.picasso.Picasso;
 
 import java.text.DateFormat;
 import java.util.Date;
+import java.util.HashMap;
 
 public class ProfileActivity extends AppCompatActivity {
 
@@ -36,6 +38,7 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference friendRequestDB;
     private DatabaseReference friendDatabase; // for user friends list
     private FirebaseUser currentUser;
+    private DatabaseReference notificationDB;
 
     private TextView profileName;
     private TextView profileBio;
@@ -91,6 +94,7 @@ public class ProfileActivity extends AppCompatActivity {
         friendRequestDB = FirebaseDatabase.getInstance().getReference().child("Friend_req");
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         friendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends");
+        notificationDB = FirebaseDatabase.getInstance().getReference().child("notifications");
 
         userDatabse.keepSynced(true); // stores local copy and sync on data change
 
@@ -247,6 +251,19 @@ public class ProfileActivity extends AppCompatActivity {
                                         .setValue("received").addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
+
+                                        // notify the user
+
+                                        HashMap<String, String> notificationData = new HashMap<>();
+                                        notificationData.put("from", currentUser.getUid());
+
+                                        notificationDB.child(uid).push().setValue(notificationData).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                            @Override
+                                            public void onSuccess(Void aVoid) {
+                                                Log.e("Notification", "Sent");
+                                            }
+
+                                        });
 
                                         // make cancel request button
                                         requestBtn.setEnabled(true);
