@@ -1,4 +1,5 @@
 'use strict'
+
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 
@@ -11,26 +12,40 @@ exports.sendNotification =  functions.database.ref('/notifications/{uid}/{notifi
 
   console.log('Notification to: ', uid);
 
-  const getDeviceToken = admin.database().ref(`/Users/${uid}/device_token`).once('value');
-  return getDeviceToken.then(result => {
+  const fromUser = admin.database().ref(`/notifications/${uid}/${notification_id}`).once('value');
+  return fromUser.then(fromUserResult =>{
+    const from_user_id = fromUserResult.val().from;
+    console.log("notification from: ", from_user_id);
 
-    const deviceToken = result.val();
+    const userQuery = admin.database().ref(`/Users/${from_user_id}/name`).once('value');
+    return userQuery.then(userResult =>{
+      const username = userResult.val();
 
-    const payload = {
-      notification: {
-        title: "Friend request",
-        body: "You have a friend request",
-        icon: "default"
-      }
-    }
+      const getDeviceToken = admin.database().ref(`/Users/${uid}/device_token`).once('value');
+      return getDeviceToken.then(result => {
+        const deviceToken = result.val();
 
-    return admin.messaging().sendToDevice( deviceToken, payload).then(response => {
+        const payload = {
+          notification: {
+            title: "Friend request",
+            body: `${username} wants to be your friend.`,
+            click_action: "com.izqalan.messenger_TARGET_NOTIFICATION"
+          },
+          data:{
+            from_user_id: from_user_id
+          }
+        }
 
-      console.log("this is a Notification");
-      return 0;
+        return admin.messaging().sendToDevice( deviceToken, payload).then(response => {
+          console.log("Notification sent");
+          return 0;
+        });
+
+    });
 
     });
 
   });
+
 
 });

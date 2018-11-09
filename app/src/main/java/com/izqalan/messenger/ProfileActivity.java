@@ -24,6 +24,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.RemoteMessage;
 import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
@@ -88,6 +89,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         // String uid is not the actual user uid.
         final String uid = getIntent().getStringExtra("user_id");
+
 
         // firebase instances
         userDatabse = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
@@ -253,6 +255,12 @@ public class ProfileActivity extends AppCompatActivity {
                                     public void onSuccess(Void aVoid) {
 
                                         // notify the user
+                                        /*
+                                        * create a db table for notification.
+                                        * for the notification script function stored in Firebase function.
+                                        * the js will read the notification db when data on change.
+                                        * the script will send the notification
+                                        * */
 
                                         HashMap<String, String> notificationData = new HashMap<>();
                                         notificationData.put("from", currentUser.getUid());
