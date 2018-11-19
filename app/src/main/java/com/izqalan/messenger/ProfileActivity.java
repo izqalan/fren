@@ -346,8 +346,8 @@ public class ProfileActivity extends AppCompatActivity {
                 if (friendship.equals("friend")){
 
                     Map unfriendMap = new HashMap();
-                    unfriendMap.put("Friends/"+currentUser.getUid()+"/"+uid,null);
-                    unfriendMap.put("Friends/"+uid+"/"+currentUser.getUid(), null);
+                    unfriendMap.put("Users/" + currentUser.getUid()+ "/Friends/"+uid,null);
+                    unfriendMap.put("Users/"+ uid +"/Friends/"+currentUser.getUid(), null);
 
                     rootRef.updateChildren(unfriendMap, new DatabaseReference.CompletionListener() {
                         @Override
