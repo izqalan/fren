@@ -1,6 +1,8 @@
 package com.izqalan.messenger;
 
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -100,13 +102,54 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        String username = dataSnapshot.child("name").getValue().toString();
+                        final String username = dataSnapshot.child("name").getValue().toString();
                         final String thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
                         String bio = dataSnapshot.child("bio").getValue().toString();
+
+
 
                         holder.setName(username);
                         holder.setBio(bio);
                         holder.setThumbImage(thumbImage);
+
+                        holder.v.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                                final CharSequence option[] = new CharSequence[]{"Open profile", "Send message"};
+
+                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                builder.setTitle("Select option");
+                                builder.setItems(option, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                                        // check array of option[]
+                                        if (i == 0){
+
+                                            Intent intent = new Intent(getContext(), ProfileActivity.class);
+                                            intent.putExtra("user_id", user_id);
+                                            startActivity(intent);
+
+                                        }
+                                        if(i == 1){
+
+                                            Intent intent = new Intent(getContext(), ChatActivity.class);
+                                            intent.putExtra("user_id", user_id);
+                                            intent.putExtra("name", username);
+                                            intent.putExtra("avatar", thumbImage);
+                                            startActivity(intent);
+
+
+                                        }
+                                    }
+                                });
+
+                                builder.show();
+
+                            }
+                        });
+
 
                     }
 
@@ -116,16 +159,7 @@ public class FriendsFragment extends Fragment {
                     }
                 });
 
-                holder.v.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
 
-                        Intent intent = new Intent(getContext(), ProfileActivity.class);
-                        intent.putExtra("user_id", user_id);
-                        startActivity(intent);
-
-                    }
-                });
             }
 
             @NonNull

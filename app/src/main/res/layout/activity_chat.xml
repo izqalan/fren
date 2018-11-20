@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#cccccc"
+    tools:context=".ChatActivity">
+
+    <include
+        android:id="@+id/chat_tool_bar"
+        layout="@layout/bar_layout"></include>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="0dp"
+        android:background="#ffffff"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/imageButton2"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:backgroundTint="#ffffff"
+            app:srcCompat="@drawable/round_add_photo_alternate_24" />
+
+        <EditText
+            android:id="@+id/msgText"
+            style="@android:style/Widget.Material.Light.EditText"
+            android:layout_width="266dp"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:hint="Message"
+            android:inputType="textMultiLine"
+            android:textAppearance="@android:style/TextAppearance.Material.Widget.EditText" />
+
+        <ImageButton
+            android:id="@+id/send_btn"
+            style="@android:style/Widget.Material.Light.ImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#ffffff"
+            app:srcCompat="@drawable/round_send_24" />
+    </LinearLayout>
+
+</RelativeLayout>
