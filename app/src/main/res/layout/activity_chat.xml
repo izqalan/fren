@@ -11,7 +11,19 @@
         android:id="@+id/chat_tool_bar"
         layout="@layout/bar_layout"></include>
 
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/messages_list"
+        android:layout_width="match_parent"
+        android:layout_height="468dp"
+        android:layout_above="@+id/field_layout"
+        android:layout_below="@+id/chat_tool_bar"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="-1dp"
+        android:layout_marginBottom="0dp"></android.support.v7.widget.RecyclerView>
+
     <LinearLayout
+        android:id="@+id/field_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
