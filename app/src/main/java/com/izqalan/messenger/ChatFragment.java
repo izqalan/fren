@@ -172,8 +172,8 @@ public class ChatFragment extends Fragment {
             }
         };
 
-
-
+        // this line of code will build the view
+        chatListView.setAdapter(adapter);
     }
 
     @Override

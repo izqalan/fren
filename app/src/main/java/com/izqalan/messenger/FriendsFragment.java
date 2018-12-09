@@ -174,6 +174,7 @@ public class FriendsFragment extends Fragment {
             }
         };
 
+        // this line of code will build the view
         friendList.setAdapter(adapter);
 
     }
