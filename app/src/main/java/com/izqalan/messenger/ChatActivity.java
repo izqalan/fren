@@ -4,6 +4,7 @@ import android.app.ActionBar;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toolbar;
 
@@ -24,6 +26,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Callback;
@@ -43,6 +46,7 @@ public class ChatActivity extends AppCompatActivity {
     private Toolbar chatToolBar;
     private TextView nameView;
     private CircleImageView profileImage;
+    private SwipeRefreshLayout swipeRefreshLayout;
 
     private EditText messageField;
     private ImageButton sendBtn;
@@ -52,6 +56,9 @@ public class ChatActivity extends AppCompatActivity {
     private String username;
     private String username2;
     private String currentUID;
+    // number of message should load
+    private static final int LIMIT = 7;
+    private int page_number = 1;
 
     private DatabaseReference usersDatabase;
     private DatabaseReference rootRef;
@@ -84,6 +91,7 @@ public class ChatActivity extends AppCompatActivity {
         final String thumb_image = getIntent().getStringExtra("avatar");
 
         // Action bar & toolbar
+        swipeRefreshLayout = findViewById(R.id.swipe_message_layout);
         chatToolBar = findViewById(R.id.chat_tool_bar);
         setActionBar(chatToolBar);
 
@@ -195,13 +203,44 @@ public class ChatActivity extends AppCompatActivity {
 
             }
         });
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            // http://sapandiwakar.in/pull-to-refresh-for-android-recyclerview-or-any-other-vertically-scrolling-view/
+
+            @Override
+            public void onRefresh() {
+                // refresh / load new item
+                refreshItems();
+
+            }
+        });
 
     }
 
-    private void loadMessages() {
+    private void refreshItems(){
+        // pagination stuff
+        page_number++;
+        // if msgList is not clear it will show the same previous messages
+        // because it will load the latest 7 messages
+//        msgList.clear();
+        msgPos = 0;
 
+        loadMoreMessages();
+        onItemsLoadComplete();
+    }
+    private void onItemsLoadComplete(){
 
-        rootRef.child("Messages").child(mAuth.getCurrentUser().getUid()).child(chatUser).addChildEventListener(new ChildEventListener() {
+        // stop refreshing animation
+        swipeRefreshLayout.setRefreshing(false);
+    }
+
+    private void loadMoreMessages(){
+
+        DatabaseReference messageRef = rootRef.child("Messages").child(mAuth.getCurrentUser().getUid()).child(chatUser);
+
+        // load latest messages and end it at specific message id
+        Query messageQuery = messageRef.orderByKey().endAt(lastMsgKey).limitToLast(LIMIT);
+
+        messageQuery.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -210,8 +249,73 @@ public class ChatActivity extends AppCompatActivity {
                 String x = message.getMessage().toString();
                 Log.e("MESSAGE_GET: ", x);
 
-                msgList.add(message);
+                msgList.add(msgPos++, message);
+                if (msgPos ==1)
+                {
+                    lastMsgKey = dataSnapshot.getKey();
+
+                }
                 messagesAdapter.notifyDataSetChanged();
+                // don't scroll to the bottom
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    // I don't quite understand this logic but it work
+    // something something to do with array, recycler position & get last key value
+    // for reference for the next message to load
+    private String lastMsgKey = "";
+    private int msgPos = 0;
+
+    private void loadMessages() {
+
+
+        rootRef.child("Messages").child(mAuth.getCurrentUser().getUid()).child(chatUser).limitToLast(page_number * LIMIT).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+
+                Messages message = dataSnapshot.getValue(Messages.class);
+
+                String x = message.getMessage().toString();
+                Log.e("MESSAGE_GET: ", x);
+
+                msgList.add(msgPos++, message);
+
+                if (msgPos ==1)
+                {
+                    lastMsgKey = dataSnapshot.getKey();
+
+                }
+                messagesAdapter.notifyDataSetChanged();
+
+                // RecyclerView automatically got to the bottom
+                // msgList stores messages in array
+                // actual size of array - 1 =  size of array including 0
+                // thus it scroll to the latest value of array
+                // https://stackoverflow.com/questions/26580723/how-to-scroll-to-the-bottom-of-a-recyclerview-scrolltoposition-doesnt-work#27063152
+                messagesList.scrollToPosition(msgList.size() - 1);
 
             }
 

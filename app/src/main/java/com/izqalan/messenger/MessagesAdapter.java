@@ -51,6 +51,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             super (view);
             messageText = view.findViewById(R.id.text_content);
             displayNameText = view.findViewById(R.id.display_name);
+            timeText = view.findViewById(R.id.time_stamp);
 
         }
 
@@ -63,7 +64,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         String currentUID = mAuth.getCurrentUser().getUid();
 
         // all the messages stored inside messagelist<array list>
-        // get messages by using index
+        // get messages by using index i
         Messages c = mMessagesList.get(i);
 
         String fromUser = c.getFrom();
@@ -73,7 +74,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         if(fromUser.equals(mAuth.getCurrentUser().getUid())){
 
             // change the layout
-            viewHolder.messageText.setBackgroundColor(Color.WHITE);
+            // this only change the layout based on the Text (viewHolder.messageText)
+            // not the actual message layout
+
+            viewHolder.messageText.setBackgroundResource(R.drawable.message_bubble_white);
+            viewHolder.messageText.setGravity(Gravity.RIGHT);
             viewHolder.messageText.setTextColor(Color.BLACK);
 
         }else {
@@ -85,8 +90,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         }
 
         String z = c.getMessage();
+        // TODO: Remove this before demo
         Log.e("FUCK", z);
-        //
+
         viewHolder.messageText.setText(c.getMessage());
         viewHolder.displayNameText.setText(c.getName());
 
