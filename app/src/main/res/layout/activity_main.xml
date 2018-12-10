@@ -32,5 +32,16 @@
         android:layout_marginStart="0dp"
         android:layout_marginTop="103dp"></android.support.v4.view.ViewPager>
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/main_fab"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_gravity="end|center"
+        android:layout_marginBottom="15dp"
+        android:src="@drawable/baseline_add_white_36"
+        android:layout_margin="16dp" />
+
 
 </RelativeLayout>

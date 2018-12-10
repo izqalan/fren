@@ -16,12 +16,15 @@ public class nPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int i) {
         switch(i){
             case 0:
+                PostingFragment postingFragment = new PostingFragment();
+                return postingFragment;
+            case 1:
                 RequestFragment requestFragment = new RequestFragment();
                 return requestFragment;
-            case 1:
+            case 2:
                 ChatFragment chatFragment = new ChatFragment();
                 return chatFragment;
-            case 2:
+            case 3:
                 FriendsFragment friendsFragment = new FriendsFragment();
                 return friendsFragment;
 
@@ -33,7 +36,7 @@ public class nPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 3;
+        return 4;
     }
 
     @Nullable
@@ -43,10 +46,12 @@ public class nPagerAdapter extends FragmentPagerAdapter {
 
         switch (position){
             case 0:
-                return "Requests";
+                return "Collab";
             case 1:
-                return "Chats";
+                return "Request";
             case 2:
+                return "Chats";
+            case 3:
                 return "Friends";
 
                 default:

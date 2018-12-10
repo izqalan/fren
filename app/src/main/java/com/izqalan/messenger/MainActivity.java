@@ -2,12 +2,14 @@ package com.izqalan.messenger;
 
 import android.content.Intent;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.TableLayout;
 import android.widget.Toolbar;
 
@@ -20,6 +22,7 @@ public class MainActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
     private Toolbar toolbar;
+    private FloatingActionButton fab;
 
     private ViewPager vp;
     private nPagerAdapter newPagerAdapter;
@@ -38,7 +41,9 @@ public class MainActivity extends AppCompatActivity {
         // define instances for toolbar layout
         toolbar = findViewById(R.id.main_toolbar);
         setActionBar(toolbar);
-        getActionBar().setTitle("TBD Messenger");
+        getActionBar().setTitle("Collab Kitchen");
+
+
 
         // tabs TABS disini !!
         vp = findViewById(R.id.tabs_pager);
@@ -49,6 +54,15 @@ public class MainActivity extends AppCompatActivity {
         newTabLayout = findViewById(R.id.main_tabs);
         newTabLayout.setupWithViewPager(vp);
 
+        // Floating action button
+        fab = findViewById(R.id.main_fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainActivity.this, EditPostActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
 
@@ -82,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     // when option from toolbar is selected
+    // the 3 dots on the top right
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);

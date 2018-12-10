@@ -12,5 +12,6 @@
     <string name="send_friend_request">send friend request</string>
     <string name="channel_description">channel desc</string>
     <string name="channel_name">tbd channel</string>
+    <string name="Posting_fragment" />
 
 </resources>
