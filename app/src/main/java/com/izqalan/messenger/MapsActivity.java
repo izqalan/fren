@@ -1,9 +1,15 @@
 package com.izqalan.messenger;
 
 import android.Manifest;
+import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationListener;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -44,8 +50,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView gpsImg;
 
     final String TAG = "Maps Activity";
+
+    // set base location
     private static final LatLngBounds LAT_LNG_BOUNDS = new LatLngBounds(
-            new LatLng(-40, -168), new LatLng(71, 136)
+            new LatLng(3.1390029999999998, 101.686855), new LatLng(3.1390029999999998, 101.686855)
     );
 
     @Override
@@ -82,8 +90,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public boolean onEditorAction(TextView textView, int i, KeyEvent keyEvent) {
 
+                // must exclude keyEvent.getAction() == keyEvent.ACTION_DOWN
+                // it will run geoLocate twice
                 if (i == EditorInfo.IME_ACTION_SEARCH || i == EditorInfo.IME_ACTION_DONE
-                        || keyEvent.getAction() == keyEvent.ACTION_DOWN
                         || keyEvent.getAction() == keyEvent.KEYCODE_ENTER)
                 {
                     // execute search method
@@ -120,12 +129,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if (list.size() > 0){
             // get the first position from the list
-            Address address = list.get(0);
+            final Address address = list.get(0);
 
             Log.d(TAG, "Found Location: "+ address.toString());
 
+
             moveCamera(new LatLng(address.getLatitude(), address.getLongitude()),
                     15f, address.getAddressLine(0));
+
+            // popup dialog to confirm meetup location
+
+            final AlertDialog.Builder builder= new AlertDialog.Builder(this);
+            builder.setTitle("Set Meetup Location");
+            builder.setMessage(address.getAddressLine(0));
+
+            builder.setPositiveButton("confirm", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    // save location into firebase
+                    String addressLine = address.getAddressLine(0);
+                    Double Lat = address.getLatitude();
+                    Double Lgn = address.getLongitude();
+                    Log.d(TAG, "Location address: "+addressLine+ " "+ Lat+" "+Lgn);
+
+                    // can be accessed in EditPostActivity
+                    Intent intent = new Intent();
+                    intent.putExtra("addressLine", addressLine);
+                    intent.putExtra("lat", Lat);
+                    intent.putExtra("lgn", Lgn);
+                    setResult(Activity.RESULT_OK, intent);
+
+                    finish();
+                }
+            });
+
+            builder.show();
+
+
         }
 
     }
@@ -135,6 +175,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         Log.d(TAG, "moveCamera: moving the camera to: lat: " + latLng.latitude + ", lng: " + latLng.longitude );
         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
 
+        // do not place pin on my current location
         if(!title.equals("My Location")){
             // place a pin onto the map
             MarkerOptions options = new MarkerOptions()
@@ -145,7 +186,6 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
     }
-
 
     /**
      * Manipulates the map once available.
@@ -159,6 +199,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+
 
         // Add a marker in Sydney and move the camera
 //        LatLng sydney = new LatLng(-34, 151);
