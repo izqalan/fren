@@ -5,8 +5,10 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -17,19 +19,39 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Callback;
+import com.squareup.picasso.Picasso;
+import com.theartofdev.edmodo.cropper.CropImage;
+import com.theartofdev.edmodo.cropper.CropImageView;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+
+import de.hdodenhof.circleimageview.CircleImageView;
+import id.zelory.compressor.Compressor;
 
 public class EditPostActivity extends AppCompatActivity {
 
@@ -40,6 +62,7 @@ public class EditPostActivity extends AppCompatActivity {
     private Button editTime;
     private EditText maxCollab;
     private FloatingActionButton createPostBtn;
+    private CircleImageView foodImg;
 
     private ProgressDialog progressDialog;
 
@@ -49,9 +72,9 @@ public class EditPostActivity extends AppCompatActivity {
     private DatabaseReference postsDatabase;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
+    private StorageReference firebaseStorage;
 
     private String pushId;
-    private String currentUser;
 
 
     private String addressLine;
@@ -61,12 +84,16 @@ public class EditPostActivity extends AppCompatActivity {
     private String maxCollabNum;
 
     private String TAG = "EditPostActivity";
+    private String currentUser = mAuth.getCurrentUser().getUid();
+    private String downloadUrl;
+    private String thumb_downloadUrl;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_post);
 
+        foodImg = findViewById(R.id.food_img);
         foodName = findViewById(R.id.food_name);
         description = findViewById(R.id.desc);
         location = findViewById(R.id.location);
@@ -78,7 +105,16 @@ public class EditPostActivity extends AppCompatActivity {
 
         rootRef = FirebaseDatabase.getInstance().getReference();
         postsDatabase = FirebaseDatabase.getInstance().getReference().child("Posts");
-        currentUser = mAuth.getCurrentUser().getUid();
+        firebaseStorage = FirebaseStorage.getInstance().getReference();
+
+        if (pushId == null){
+            DatabaseReference pushPosts = postsDatabase.child(currentUser).push();
+            pushId = pushPosts.getKey();
+
+        }
+
+
+
 
 
         location.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +122,7 @@ public class EditPostActivity extends AppCompatActivity {
             public void onClick(View view) {
 
                 Intent intent = new Intent(EditPostActivity.this, MapsActivity.class);
+                // listen for result from another intent
                 startActivityForResult(intent, 1);
 
 
@@ -168,6 +205,8 @@ public class EditPostActivity extends AppCompatActivity {
                 postVal.put("address", addressLine);
                 postVal.put("lat", lat);
                 postVal.put("lgn", lgn);
+                postVal.put("image", downloadUrl);
+                postVal.put("thumb_image", thumb_downloadUrl);
 
                 Map storeMap = new HashMap();
 
@@ -199,6 +238,16 @@ public class EditPostActivity extends AppCompatActivity {
 
         //TODO: Add custom food image & pls redesign
 
+        foodImg.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                CropImage.activity()
+                        .setGuidelines(CropImageView.Guidelines.ON)
+                        .setAspectRatio(2, 1)
+                        .start(EditPostActivity.this);
+            }
+        });
 
 
     }
@@ -224,6 +273,129 @@ public class EditPostActivity extends AppCompatActivity {
                 Log.d(TAG, "Location (EditPost): " + addressLine);
                 Log.d(TAG, "Location (EditPost): LatLgn: " + lat + lgn );
             }
+        }
+
+        // image crop activity listener
+        if (requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE){
+
+            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+
+            if (resultCode == Activity.RESULT_OK)
+            {
+                progressDialog = new ProgressDialog(EditPostActivity.this);
+                progressDialog.setTitle("Uploading");
+                progressDialog.setMessage("Please wait a moment");
+                progressDialog.setCanceledOnTouchOutside(false);
+                progressDialog.show();
+
+                // uri location of your image
+                Uri resultUri = result.getUri();
+                File thumb_uri = new File(resultUri.getPath());
+
+                // make random string for stored image
+                final String imgId = pushId;
+
+                // image compression before push to storage
+                Bitmap thumbnail = null;
+                try{
+                    thumbnail = new Compressor(this)
+                            .setMaxHeight(350)
+                            .setMaxWidth(400)
+                            .setQuality(70)
+                            .compressToBitmap(thumb_uri);
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
+
+
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                thumbnail.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+                final byte[] thumb_data = baos.toByteArray();
+
+
+                final StorageReference filepath = firebaseStorage.child("posts").child(imgId+".jpg");
+                final StorageReference thumb_filepath = firebaseStorage.child("posts").child("thumb").child(imgId+".jpg");
+
+                filepath.putFile(resultUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                        if (task.isSuccessful()){
+
+                            // firebase uploadtask interface
+                            UploadTask uploadTask = thumb_filepath.putBytes(thumb_data);
+
+                            uploadTask.addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                @Override
+                                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
+                                    if(task.isSuccessful())
+                                    {
+                                        final Map update_map = new HashMap();
+
+                                        filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>()
+                                        {
+
+                                            @Override
+                                            public void onSuccess(Uri uri)
+                                            {
+                                                downloadUrl = uri.toString();
+
+                                                Log.e("downloadUrl", downloadUrl);
+//                                                update_map.put("image", downloadUrl);
+//                                                TODO: Bad solution but it work. need to review again
+//                                                postsDatabase.child(currentUser).child(pushId).child("image").setValue(downloadUrl);
+
+                                                // load the image
+                                                Picasso.get().load(downloadUrl).into(foodImg, new Callback() {
+                                                    @Override
+                                                    public void onSuccess() {
+
+                                                    }
+
+                                                    @Override
+                                                    public void onError(Exception e) {
+                                                        // TODO: Pls add default food image
+                                                        Picasso.get().load(downloadUrl).placeholder(R.drawable.default_avatar)
+                                                                .error(R.drawable.default_avatar).into(foodImg);
+                                                    }
+                                                });
+
+                                            }
+                                        });
+
+                                        thumb_filepath.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                            @Override
+                                            public void onSuccess(Uri uri) {
+
+                                                thumb_downloadUrl = uri.toString();
+                                                Log.e("downloadUrl", thumb_downloadUrl);
+//                                                postsDatabase.child(currentUser).child(pushId).child("thumb_image").setValue(thumb_downloadUrl);
+
+                                            }
+                                        });
+
+
+                                        progressDialog.dismiss();
+                                        Toast.makeText(EditPostActivity.this,"Uploaded", Toast.LENGTH_SHORT).show();
+
+
+                                    }
+
+                                }
+                            });
+
+                        }
+
+                    }
+                });
+            }
+            else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                Exception error = result.getError();
+                error.getMessage();
+                error.getStackTrace();
+            }
+
         }
 
 

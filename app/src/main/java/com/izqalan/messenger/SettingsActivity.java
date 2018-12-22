@@ -227,7 +227,7 @@ public class SettingsActivity extends AppCompatActivity {
                 Uri resultUri = result.getUri();
                 File thumb_uri = new File(resultUri.getPath());
 
-                // make random string for stored image
+                // set image name as user id
                 final String userid = currentUser.getUid();
 
                 // image compression
