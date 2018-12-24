@@ -71,7 +71,6 @@ public class FriendsFragment extends Fragment {
             currentUserId = mAuth.getInstance().getCurrentUser().getUid();
         }
 
-
         friendDatabase = FirebaseDatabase.getInstance().getReference().child("Friends").child(currentUserId);
         friendDatabase.keepSynced(true);
         userDatabase = FirebaseDatabase.getInstance().getReference().child("Users");

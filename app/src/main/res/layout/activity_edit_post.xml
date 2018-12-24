@@ -20,7 +20,7 @@
             android:id="@+id/edit_time"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/location"
+            android:layout_below="@+id/address"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="2dp"
             android:background="@drawable/set_date_time_btn"
@@ -63,7 +63,7 @@
             android:textSize="12sp" />
 
         <TextView
-            android:id="@+id/location"
+            android:id="@+id/address"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:layout_below="@+id/desc"
@@ -77,7 +77,7 @@
             android:id="@+id/edit_date"
             android:layout_width="191dp"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/location"
+            android:layout_below="@+id/address"
             android:layout_alignParentStart="true"
             android:layout_marginStart="0dp"
             android:layout_marginTop="4dp"

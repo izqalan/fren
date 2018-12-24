@@ -6,8 +6,6 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -19,7 +17,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -28,11 +25,9 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -41,11 +36,9 @@ import com.squareup.picasso.Picasso;
 import com.theartofdev.edmodo.cropper.CropImage;
 import com.theartofdev.edmodo.cropper.CropImageView;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
@@ -96,7 +89,7 @@ public class EditPostActivity extends AppCompatActivity {
         foodImg = findViewById(R.id.food_img);
         foodName = findViewById(R.id.food_name);
         description = findViewById(R.id.desc);
-        location = findViewById(R.id.location);
+        location = findViewById(R.id.address);
         editDate = findViewById(R.id.edit_date);
         editTime = findViewById(R.id.edit_time);
         maxCollab = findViewById(R.id.num_collab);
@@ -183,7 +176,7 @@ public class EditPostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String userPostRef = "Posts/"+currentUser;
+                String userPostRef = "Posts/";
 
                 if (pushId == null){
                     DatabaseReference pushPosts = postsDatabase.child(currentUser).push();
@@ -197,6 +190,7 @@ public class EditPostActivity extends AppCompatActivity {
 
                 // TODO: add image
                 Map postVal = new HashMap();
+                postVal.put("owner", currentUser);
                 postVal.put("foodname", food_name);
                 postVal.put("desc", desc);
                 postVal.put("date", date);
@@ -210,7 +204,7 @@ public class EditPostActivity extends AppCompatActivity {
 
                 Map storeMap = new HashMap();
 
-                storeMap.put(userPostRef+"/"+pushId, postVal);
+                storeMap.put(userPostRef+pushId, postVal);
 
 
                 rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
@@ -252,6 +246,7 @@ public class EditPostActivity extends AppCompatActivity {
 
     }
 
+    // listen result from MapActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
 
