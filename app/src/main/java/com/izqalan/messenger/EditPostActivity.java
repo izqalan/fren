@@ -187,6 +187,7 @@ public class EditPostActivity extends AppCompatActivity {
                 String food_name = foodName.getText().toString();
                 String desc = description.getText().toString();
                 maxCollabNum = maxCollab.getText().toString();
+                String current_user_thumb = rootRef.child("Users").child(currentUser).child("thumb_image").toString();
 
                 // TODO: add image
                 Map postVal = new HashMap();
@@ -202,10 +203,11 @@ public class EditPostActivity extends AppCompatActivity {
                 postVal.put("image", downloadUrl);
                 postVal.put("thumb_image", thumb_downloadUrl);
 
+                // TODO: Bug! cannot stores Owner as collaborators
                 Map storeMap = new HashMap();
 
                 storeMap.put(userPostRef+pushId, postVal);
-
+                storeMap.put("Posts/"+pushId+"/collab/"+currentUser+"/thumb_image", current_user_thumb);
 
                 rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
                     @Override
@@ -221,9 +223,9 @@ public class EditPostActivity extends AppCompatActivity {
                             progressDialog.setCanceledOnTouchOutside(false);
                             progressDialog.show();
                             Toast.makeText(EditPostActivity.this,"Post created",Toast.LENGTH_LONG).show();
-                            finish();
-                        }
 
+                        }
+                        finish();
                     }
                 });
 
@@ -238,7 +240,7 @@ public class EditPostActivity extends AppCompatActivity {
 
                 CropImage.activity()
                         .setGuidelines(CropImageView.Guidelines.ON)
-                        .setAspectRatio(2, 1)
+                        .setAspectRatio(1, 1)
                         .start(EditPostActivity.this);
             }
         });
@@ -294,8 +296,8 @@ public class EditPostActivity extends AppCompatActivity {
                 Bitmap thumbnail = null;
                 try{
                     thumbnail = new Compressor(this)
-                            .setMaxHeight(350)
-                            .setMaxWidth(400)
+                            .setMaxHeight(600)
+                            .setMaxWidth(600)
                             .setQuality(70)
                             .compressToBitmap(thumb_uri);
                 }catch (IOException e){

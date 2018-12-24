@@ -94,45 +94,48 @@ public class PostingFragment extends Fragment {
 
                 final String post_id = getRef(position).getKey();
                 Log.d(TAG, "post_id: "+ post_id);
+
                 postDatabase.child(post_id).addValueEventListener(new ValueEventListener() {
-
-
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        final String foodName =  dataSnapshot.child("foodname").getValue().toString();
-                        final String image = dataSnapshot.child("image").getValue().toString();
-                        final String date = dataSnapshot.child("date").getValue().toString();
-                        final String time = dataSnapshot.child("time").getValue().toString();
-                        final String owner = dataSnapshot.child("owner").getValue().toString();
-                        final String address = dataSnapshot.child("address").getValue().toString();
+                        if(dataSnapshot.exists()) {
+                            final String foodName = dataSnapshot.child("foodname").getValue().toString();
+                            final String image = dataSnapshot.child("image").getValue().toString();
+                            final String date = dataSnapshot.child("date").getValue().toString();
+                            final String time = dataSnapshot.child("time").getValue().toString();
+                            final String owner = dataSnapshot.child("owner").getValue().toString();
+                            final String address = dataSnapshot.child("address").getValue().toString();
 
-                        Log.d(TAG, image);
-                        holder.setFoodName(foodName);
-                        holder.setImage(image);
-                        holder.setDate(date);
-                        holder.setTime(time);
 
-                        if(address.length() > 50){
-                            String shortAddr = address.substring(0,50)+"...";
-                            holder.setAddress(shortAddr);
-                        }else{
-                            holder.setAddress(address);
-                        }
+                            Log.d(TAG, image);
+                            holder.setFoodName(foodName);
+                            holder.setImage(image);
+                            holder.setDate(date);
+                            holder.setTime(time);
 
-                        holder.v.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // go to new page that shows more detail about the event
-                                Intent intent = new Intent(getContext(), PostActivity.class);
-                                intent.putExtra("user_id", owner);
-                                intent.putExtra("post_id", post_id);
-                                intent.putExtra("image", image);
-
-                                startActivity(intent);
-
+                            if (address.length() > 50) {
+                                String shortAddr = address.substring(0, 50) + "...";
+                                holder.setAddress(shortAddr);
+                            } else {
+                                holder.setAddress(address);
                             }
-                        });
+
+
+                            holder.v.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    // go to new page that shows more detail about the event
+                                    Intent intent = new Intent(getContext(), PostActivity.class);
+                                    intent.putExtra("user_id", owner);
+                                    intent.putExtra("post_id", post_id);
+                                    intent.putExtra("image", image);
+
+                                    startActivity(intent);
+
+                                }
+                            });
+                        }
 
                     }
 

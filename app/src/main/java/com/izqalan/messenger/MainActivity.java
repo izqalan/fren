@@ -90,6 +90,8 @@ public class MainActivity extends AppCompatActivity {
 
             gotoStart();
         }
+
+
     }
 
     private void gotoStart() {
@@ -104,8 +106,8 @@ public class MainActivity extends AppCompatActivity {
 
         // include menu on the toolbar from /menu/main_menu
         getMenuInflater().inflate(R.menu.main_menu, menu);
-
         return true;
+
     }
 
 

@@ -88,8 +88,7 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:parentActivityName=".EditPostActivity" />
-        <activity android:name=".PostActivity"
-            android:parentActivityName=".MainActivity"></activity>
+        <activity android:name=".PostActivity"></activity>
     </application>
 
 </manifest>
