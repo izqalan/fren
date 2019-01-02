@@ -4,6 +4,7 @@ public class Collab {
 
 
     public String image;
+    public String name;
 
     public Collab(){ }
 

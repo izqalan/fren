@@ -1,0 +1,32 @@
+package com.izqalan.messenger;
+
+public class Requests {
+
+    public Requests(){    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    public String name;
+    public String image;
+
+    public Requests(String name, String image) {
+        this.name = name;
+        this.image = image;
+    }
+
+
+}

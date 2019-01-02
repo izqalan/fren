@@ -189,7 +189,6 @@ public class EditPostActivity extends AppCompatActivity {
                 maxCollabNum = maxCollab.getText().toString();
                 String current_user_thumb = rootRef.child("Users").child(currentUser).child("thumb_image").toString();
 
-                // TODO: add image
                 Map postVal = new HashMap();
                 postVal.put("owner", currentUser);
                 postVal.put("foodname", food_name);

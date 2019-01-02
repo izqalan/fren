@@ -50,12 +50,13 @@ public class ProfileActivity extends AppCompatActivity {
     private Button declineBtn;
     private Button requestBtn;
 
+    // Tabs
     private TabLayout newTabLAyout;
-
     private ViewPager vp;
     private ProfilePagerAdapter profilePagerAdapter;
 
     private String friendship;
+    private static final String TAG = "ProfileActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -143,13 +144,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
-//                if(!image.equals("default")){
-//                    Picasso.get().load(image).into(profileImage);
-//
-//                }
-//                else {
-//                    Picasso.get().load(R.drawable.default_avatar).into(profileImage);
-//                }
+
 
                 // Live DB checker
 
@@ -181,6 +176,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                 });
 
+                Log.d(TAG, "friendship: is "+ friendship );
                 // check friendship status for the button
                 friendDatabase.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
@@ -190,7 +186,7 @@ public class ProfileActivity extends AppCompatActivity {
                             friendship = "friend";
                             requestBtn.setText("Unfriend");
                             declineBtn.setVisibility(View.GONE);
-
+                            Log.d(TAG, "friendship: is "+ friendship );
                         }
                         // i did this because
                         else if(!dataSnapshot.hasChild(uid) && friendship.equals("neutral")){
@@ -345,9 +341,11 @@ public class ProfileActivity extends AppCompatActivity {
                 // when user unfriend
                 if (friendship.equals("friend")){
 
+                    Log.d(TAG, "friendship: is "+ friendship );
+
                     Map unfriendMap = new HashMap();
-                    unfriendMap.put("Users/" + currentUser.getUid()+ "/Friends/"+uid,null);
-                    unfriendMap.put("Users/"+ uid +"/Friends/"+currentUser.getUid(), null);
+                    unfriendMap.put("Friends/" + currentUser.getUid()+ "/"+uid,null);
+                    unfriendMap.put("Friends/"+ uid +"/"+currentUser.getUid(), null);
 
                     rootRef.updateChildren(unfriendMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -356,6 +354,7 @@ public class ProfileActivity extends AppCompatActivity {
                             if (databaseError == null){
                                 requestBtn.setEnabled(true);
                                 friendship = "not_friend";
+                                Log.d(TAG, "friendship: is "+ friendship );
                                 requestBtn.setText("Send friend request");
                             }
 

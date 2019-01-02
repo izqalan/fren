@@ -128,6 +128,7 @@ public class PostingFragment extends Fragment {
                                     // go to new page that shows more detail about the event
                                     Intent intent = new Intent(getContext(), PostActivity.class);
                                     intent.putExtra("user_id", owner);
+                                    intent.putExtra("uid", currentUserId);
                                     intent.putExtra("post_id", post_id);
                                     intent.putExtra("image", image);
 
