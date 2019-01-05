@@ -3,6 +3,7 @@ package com.izqalan.messenger;
 
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +16,7 @@ import android.widget.TextView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -32,11 +34,14 @@ public class RequestFragment extends Fragment {
 
     private View mainView;
     private RecyclerView requestList;
+    private RecyclerView collabRequestList;
 
     private FirebaseAuth mAuth;
     private DatabaseReference friendRequestDatabase;
     private DatabaseReference userDatabse;
+    private DatabaseReference collabReq;
     private FirebaseRecyclerAdapter adapter;
+    private FirebaseRecyclerAdapter collabAdapter;
     private String currentUserId;
 
     private static final String TAG = "RequestFragment";
@@ -51,6 +56,8 @@ public class RequestFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_request, container, false);
 
         requestList = mainView.findViewById(R.id.request_list);
+        collabRequestList = mainView.findViewById(R.id.collab_request_list);
+
 
         currentUserId = getActivity().getIntent().getStringExtra("user_id");
 
@@ -62,9 +69,15 @@ public class RequestFragment extends Fragment {
         friendRequestDatabase = FirebaseDatabase.getInstance().getReference().child("Friend_req")
                 .child(currentUserId);
         userDatabse = FirebaseDatabase.getInstance().getReference().child("Users");
+        collabReq = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId).child("received");
 
+        //recyclerview settings for friends request
         requestList.setHasFixedSize(true);
         requestList.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        //recyclerview settings for collab request
+        collabRequestList.setHasFixedSize(true);
+        collabRequestList.setLayoutManager(new LinearLayoutManager(getContext()));
 
         bindAdapter();
 
@@ -72,6 +85,7 @@ public class RequestFragment extends Fragment {
     }
 
     private void bindAdapter() {
+
 
         FirebaseRecyclerOptions<Requests> friendsOptions =
                 new FirebaseRecyclerOptions.Builder<Requests>()
@@ -94,6 +108,7 @@ public class RequestFragment extends Fragment {
 
                             String req_type = dataSnapshot.child("request_type").getValue().toString();
                             Log.d(TAG, req_type);
+
                             if (req_type.equals("received")) {
 
                                 userDatabse.child(user_id).addValueEventListener(new ValueEventListener() {
@@ -110,6 +125,7 @@ public class RequestFragment extends Fragment {
                                             // create a view
                                             holder.setName(name);
                                             holder.setThumbImage(thumb_image);
+                                            holder.setMessage("Wants to be your friend");
 
                                         }
 
@@ -130,6 +146,7 @@ public class RequestFragment extends Fragment {
                     public void onCancelled(@NonNull DatabaseError databaseError) {
 
                     }
+
                 });
 
 
@@ -147,23 +164,110 @@ public class RequestFragment extends Fragment {
             }
         };
 
+        FirebaseRecyclerOptions<Requests> collabOptions =
+                new FirebaseRecyclerOptions.Builder<Requests>()
+                        .setQuery(collabReq, Requests.class)
+                        .build();
 
+
+        collabAdapter = new FirebaseRecyclerAdapter<Requests, RequestHolder>(collabOptions) {
+            @Override
+            protected void onBindViewHolder(@NonNull final RequestHolder holder, final int position, @NonNull Requests model) {
+
+                Log.d(TAG, "pos: "+position);
+                final String reqId = getRef(position).getKey();
+                Log.d(TAG, "collabreq requestId: "+ reqId);
+
+
+                // FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId);
+                collabReq.addChildEventListener(new ChildEventListener() {
+                    @Override
+                    public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                        Log.d(TAG, "before snaps "+dataSnapshot.getRef().getPath().toString()+ " ref "+ dataSnapshot.child(reqId).getChildren());
+
+                        if (dataSnapshot.exists()){
+
+                            String postId = dataSnapshot.child("post_id").getValue().toString();
+                            Log.d(TAG, "received "+postId);
+                            String sender = dataSnapshot.child("sender").getValue().toString();
+
+                            userDatabse.child(sender).addValueEventListener(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                                    String name = dataSnapshot.child("name").getValue().toString();
+                                    String image = dataSnapshot.child("thumb_image").getValue().toString();
+
+                                    holder.setThumbImage(image);
+                                    holder.setName(name);
+                                    holder.setMessage("Wants to collab with you at "+reqId);
+
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
+                        }
+
+
+                    }
+
+                    @Override
+                    public void onChildChanged(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onChildRemoved(@NonNull DataSnapshot dataSnapshot) {
+
+                    }
+
+                    @Override
+                    public void onChildMoved(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+            }
+
+
+            @NonNull
+            @Override
+            public RequestHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+                View view =  LayoutInflater.from(viewGroup.getContext())
+                        .inflate(R.layout.request_list_layout, viewGroup, false);
+                return new RequestHolder(view);
+            }
+        };
+
+        collabRequestList.setAdapter(collabAdapter);
         // REEEEEE SELALU LUPA SET ADAPTER!!
         requestList.setAdapter(adapter);
-
 
     }
 
     @Override
     public void onStart() {
         super.onStart();
+
         adapter.startListening();
+        collabAdapter.startListening();
     }
 
     @Override
     public void onStop() {
         super.onStop();
+
         adapter.stopListening();
+        collabAdapter.stopListening();
     }
 
     public static class RequestHolder extends RecyclerView.ViewHolder{
@@ -185,6 +289,12 @@ public class RequestFragment extends Fragment {
             Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(user_avatar);
 
         }
+
+        public void setMessage(String message){
+            TextView msgView = v.findViewById(R.id.request_type);
+            msgView.setText(message);
+        }
+
     }
 
 }

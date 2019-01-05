@@ -28,6 +28,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -201,12 +202,18 @@ public class EditPostActivity extends AppCompatActivity {
                 postVal.put("lgn", lgn);
                 postVal.put("image", downloadUrl);
                 postVal.put("thumb_image", thumb_downloadUrl);
+                postVal.put("timestamp", ServerValue.TIMESTAMP);
+
+                if (postVal.get("image") == null){
+                    postVal.put("image", "default");
+                    postVal.put("thumb_image", "default");
+                }
 
                 // TODO: Bug! cannot stores Owner as collaborators
                 Map storeMap = new HashMap();
 
                 storeMap.put(userPostRef+pushId, postVal);
-                storeMap.put("Posts/"+pushId+"/collab/"+currentUser+"/thumb_image", current_user_thumb);
+//                storeMap.put("Posts/"+pushId+"/collab/"+currentUser+"/thumb_image", current_user_thumb);
 
                 rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
                     @Override

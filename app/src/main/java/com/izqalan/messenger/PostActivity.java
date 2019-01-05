@@ -61,6 +61,7 @@ public class PostActivity extends AppCompatActivity {
     private TabLayout newTabLAyout;
     private ViewPager vp;
     private PostPagerAdapter postPagerAdapter;
+    private String requestId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -118,6 +119,8 @@ public class PostActivity extends AppCompatActivity {
         avatarList.setHasFixedSize(true);
         avatarList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
+
+
         if (currentUserID.equals(ownerId)){
             collabBtn.setVisibility(View.GONE);
         }
@@ -125,7 +128,7 @@ public class PostActivity extends AppCompatActivity {
 
         Log.d(TAG, currentUserID+"/"+ownerId);
 
-        requestCollab.child(currentUserID).addValueEventListener(new ValueEventListener() {
+        requestCollab.child(currentUserID).child("sent").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -133,7 +136,9 @@ public class PostActivity extends AppCompatActivity {
                 {
                     if (dataSnapshot.hasChild(postId)) {
                         Log.d(TAG, "postId: " + postId + " owner: " + ownerId);
-                        String req_type = dataSnapshot.child(postId).child(ownerId).child("request_type").getValue().toString();
+                        String req_type = dataSnapshot.child(postId).child("request_type").getValue().toString();
+
+                        requestId = dataSnapshot.child(postId).child("request_id").getValue().toString();
 
                         if (req_type.equals("sent")) {
                             requestCode = "req_sent";
@@ -158,10 +163,22 @@ public class PostActivity extends AppCompatActivity {
 
                 // sending request
                 if (requestCode.equals("req_null")){
+
+                    DatabaseReference reqId = requestCollab.child(ownerId).push();
+                    String requestId = reqId.getKey();
+
                     Map request = new HashMap();
 
-                    request.put("/"+ownerId+"/"+postId+"/"+currentUserID+"/request_type", "received");
-                    request.put("/"+currentUserID+"/"+postId+"/"+ownerId+"/request_type", "sent");
+                    request.put("/"+ownerId+"/received/"+requestId+"/request_type", "sent");
+                    request.put("/"+ownerId+"/received/"+requestId+"/post_id", postId);
+                    request.put("/"+ownerId+"/received/"+requestId+"/sender", currentUserID);
+
+                    request.put("/"+currentUserID+"/sent/"+postId+"/request_type", "sent");
+                    request.put("/"+currentUserID+"/sent/"+postId+"/request_id", requestId);
+                    request.put("/"+currentUserID+"/sent/"+postId+"/owner", ownerId);
+
+//                    request.put("/"+postId+"/"+ownerId+"/request_type", "received");
+//                    request.put("/"+postId+"/owner", ownerId);
 
                     requestCollab.updateChildren(request, new DatabaseReference.CompletionListener() {
                         @Override
@@ -183,10 +200,17 @@ public class PostActivity extends AppCompatActivity {
 
                     Log.d(TAG, "pressing cancel button");
 
+
                     Map request = new HashMap();
 
-                    request.put("/"+ownerId+"/"+postId+"/"+currentUserID+"/request_type", null);
-                    request.put("/"+currentUserID+"/"+postId+"/"+ownerId+"/request_type", null);
+                    request.put("/"+ownerId+"/received/"+requestId+"/request_type", null);
+                    request.put("/"+ownerId+"/received/"+requestId+"/post_id", null);
+                    request.put("/"+ownerId+"/received/"+requestId+"/sender", null);
+
+                    request.put("/"+currentUserID+"/sent/"+postId+"/request_type", null);
+                    request.put("/"+currentUserID+"/sent/"+postId+"/request_id", null);
+                    request.put("/"+currentUserID+"/sent/"+postId+"/owner", null);
+//                    request.put("/"+postId+"/owner", null);
 
                     requestCollab.updateChildren(request, new DatabaseReference.CompletionListener() {
                         @Override

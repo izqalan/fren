@@ -22,6 +22,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.squareup.picasso.Callback;
@@ -95,7 +96,10 @@ public class PostingFragment extends Fragment {
                 final String post_id = getRef(position).getKey();
                 Log.d(TAG, "post_id: "+ post_id);
 
-                postDatabase.child(post_id).addValueEventListener(new ValueEventListener() {
+                DatabaseReference ref = postDatabase.child(post_id);
+                Query query = ref.orderByChild("timestamp");
+
+                query.addValueEventListener(new ValueEventListener() {
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {

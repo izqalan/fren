@@ -233,6 +233,7 @@ public class ChatActivity extends AppCompatActivity {
         swipeRefreshLayout.setRefreshing(false);
     }
 
+    // load more message to be used after load messages
     private void loadMoreMessages(){
 
         DatabaseReference messageRef = rootRef.child("Messages").child(mAuth.getCurrentUser().getUid()).child(chatUser);
