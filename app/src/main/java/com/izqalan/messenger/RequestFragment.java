@@ -11,7 +11,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -21,8 +23,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -35,11 +41,15 @@ public class RequestFragment extends Fragment {
     private View mainView;
     private RecyclerView requestList;
     private RecyclerView collabRequestList;
+    private ImageButton approveBtn;
+    private ImageButton rejectBtn;
 
     private FirebaseAuth mAuth;
     private DatabaseReference friendRequestDatabase;
     private DatabaseReference userDatabse;
+    private DatabaseReference postsDatabase;
     private DatabaseReference collabReq;
+    private DatabaseReference collabReqRecycler;
     private FirebaseRecyclerAdapter adapter;
     private FirebaseRecyclerAdapter collabAdapter;
     private String currentUserId;
@@ -59,6 +69,7 @@ public class RequestFragment extends Fragment {
         collabRequestList = mainView.findViewById(R.id.collab_request_list);
 
 
+
         currentUserId = getActivity().getIntent().getStringExtra("user_id");
 
         if(currentUserId == null){
@@ -69,7 +80,9 @@ public class RequestFragment extends Fragment {
         friendRequestDatabase = FirebaseDatabase.getInstance().getReference().child("Friend_req")
                 .child(currentUserId);
         userDatabse = FirebaseDatabase.getInstance().getReference().child("Users");
-        collabReq = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId).child("received");
+        collabReq = FirebaseDatabase.getInstance().getReference().child("Collab_req");
+        collabReqRecycler = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId).child("received");
+        postsDatabase = FirebaseDatabase.getInstance().getReference().child("Posts");
 
         //recyclerview settings for friends request
         requestList.setHasFixedSize(true);
@@ -96,7 +109,13 @@ public class RequestFragment extends Fragment {
             @Override
             protected void onBindViewHolder(@NonNull final RequestHolder holder, int position, @NonNull Requests model) {
 
-//                Friend_req/currentUID/position UID
+                // the buttons cannot be instantiate inside onCreate method
+                // because the view haven't inflate/load any layout into the fragment yet
+                approveBtn = holder.v.findViewById(R.id.request_approve);
+                rejectBtn = holder.v.findViewById(R.id.request_decline);
+
+
+                // Friend_req/currentUID/position UID
                 final String user_id = getRef(position).getKey();
                 Log.d(TAG, "userid: "+user_id);
                 friendRequestDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
@@ -126,6 +145,25 @@ public class RequestFragment extends Fragment {
                                             holder.setName(name);
                                             holder.setThumbImage(thumb_image);
                                             holder.setMessage("Wants to be your friend");
+
+                                            approveBtn.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+
+                                                    Toast.makeText(getContext(), "Approved" + user_id, Toast.LENGTH_SHORT).show();
+
+                                                }
+                                            });
+                                            rejectBtn.setOnClickListener(new View.OnClickListener() {
+                                                @Override
+                                                public void onClick(View view) {
+
+                                                    Toast.makeText(getContext(), "Rejected", Toast.LENGTH_SHORT).show();
+
+                                                }
+                                            });
+
+
 
                                         }
 
@@ -157,16 +195,18 @@ public class RequestFragment extends Fragment {
             @NonNull
             @Override
             public RequestHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-                // inflate view / layout for recycler
+                // inflate layout i want to use into recyclerView
                 View view =  LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.request_list_layout, viewGroup, false);
+
+
                 return new RequestHolder(view);
             }
         };
 
         FirebaseRecyclerOptions<Requests> collabOptions =
                 new FirebaseRecyclerOptions.Builder<Requests>()
-                        .setQuery(collabReq, Requests.class)
+                        .setQuery(collabReqRecycler, Requests.class)
                         .build();
 
 
@@ -178,9 +218,14 @@ public class RequestFragment extends Fragment {
                 final String reqId = getRef(position).getKey();
                 Log.d(TAG, "collabreq requestId: "+ reqId);
 
+                // the buttons cannot be instantiate inside onCreate method
+                // because the view haven't inflate/load any layout into the fragment yet
+                approveBtn = holder.v.findViewById(R.id.request_approve);
+                rejectBtn = holder.v.findViewById(R.id.request_decline);
 
-                // FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId);
-                collabReq.addChildEventListener(new ChildEventListener() {
+
+                // FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId).child("received");
+                collabReqRecycler.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot dataSnapshot, @Nullable String s) {
 
@@ -188,20 +233,122 @@ public class RequestFragment extends Fragment {
 
                         if (dataSnapshot.exists()){
 
-                            String postId = dataSnapshot.child("post_id").getValue().toString();
+                            final String postId = dataSnapshot.child("post_id").getValue().toString();
                             Log.d(TAG, "received "+postId);
-                            String sender = dataSnapshot.child("sender").getValue().toString();
+                            final String sender = dataSnapshot.child("sender").getValue().toString();
 
                             userDatabse.child(sender).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                                    String name = dataSnapshot.child("name").getValue().toString();
+                                    final String name = dataSnapshot.child("name").getValue().toString();
                                     String image = dataSnapshot.child("thumb_image").getValue().toString();
 
                                     holder.setThumbImage(image);
                                     holder.setName(name);
                                     holder.setMessage("Wants to collab with you at "+reqId);
+
+
+
+
+                                    approveBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+
+                                            Toast.makeText(getContext(), "Approved" + name, Toast.LENGTH_SHORT).show();
+
+                                            final Map collabRequest = new HashMap();
+
+                                            collabRequest.put("/collab/"+sender+"/timestamp", ServerValue.TIMESTAMP);
+
+                                            postsDatabase.child(postId).updateChildren(collabRequest, new DatabaseReference.CompletionListener() {
+                                                @Override
+                                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                                    if(databaseError == null){
+
+                                                        final Map nMap = new HashMap();
+                                                        Log.d(TAG, "removing request"+postId);
+                                                        nMap.put("/"+reqId+"/post_id", null);
+                                                        nMap.put("/"+reqId+"/request_type", null);
+                                                        nMap.put("/"+reqId+"/sender", null);
+
+                                                        collabReqRecycler.updateChildren(nMap, new DatabaseReference.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                                                if (databaseError == null){
+
+                                                                    DatabaseReference collabReqSent = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(sender).child("sent");
+                                                                    Log.d(TAG, "sender/"+sender);
+
+                                                                    final Map sentMap = new HashMap();
+                                                                    Log.d(TAG, "removing request"+postId);
+                                                                    sentMap.put("/"+postId+"/request_id", null);
+                                                                    sentMap.put("/"+postId+"/owner", null);
+                                                                    sentMap.put("/"+postId+"/request_type", null);
+
+                                                                    collabReq.child(sender).child("sent").updateChildren(sentMap, new DatabaseReference.CompletionListener() {
+                                                                        @Override
+                                                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                                                            Toast.makeText(getContext(), "Request removed", Toast.LENGTH_SHORT).show();
+
+                                                                        }
+                                                                    });
+
+                                                                }
+
+
+                                                            }
+                                                        });
+
+
+
+                                                        // made this for user joined / posts history
+                                                        Map eventMap = new HashMap();
+
+                                                        eventMap.put("/events/"+postId+"/created", ServerValue.TIMESTAMP);
+
+                                                        userDatabse.child(sender).updateChildren(eventMap, new DatabaseReference.CompletionListener() {
+                                                            @Override
+                                                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+
+
+                                                            }
+                                                        });
+
+
+                                                    }
+
+                                                }
+                                            });
+
+
+                                        }
+                                    });
+                                    rejectBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+
+                                            Toast.makeText(getContext(), "Rejected", Toast.LENGTH_SHORT).show();
+                                            Map nMap = new HashMap();
+                                            Log.d(TAG, "removing request"+postId);
+                                            nMap.put("/"+reqId+"/post_id", null);
+                                            nMap.put("/"+reqId+"/request_type", null);
+                                            nMap.put("/"+reqId+"/sender", null);
+                                            collabReq.child(currentUserId).child("received").updateChildren(nMap, new DatabaseReference.CompletionListener() {
+                                                @Override
+                                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                                    Toast.makeText(getContext(), "Request removed", Toast.LENGTH_SHORT).show();
+
+                                                }
+                                            });
+
+                                        }
+                                    });
+
 
                                 }
 
@@ -242,8 +389,14 @@ public class RequestFragment extends Fragment {
             @NonNull
             @Override
             public RequestHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+                // inflate layout i want to use into recyclerView
+                // in this fragment(getContext()) inflate layout.view(R.layout.id)
                 View view =  LayoutInflater.from(viewGroup.getContext())
                         .inflate(R.layout.request_list_layout, viewGroup, false);
+
+
+
+
                 return new RequestHolder(view);
             }
         };

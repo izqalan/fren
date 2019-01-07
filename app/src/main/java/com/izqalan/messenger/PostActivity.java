@@ -62,6 +62,7 @@ public class PostActivity extends AppCompatActivity {
     private ViewPager vp;
     private PostPagerAdapter postPagerAdapter;
     private String requestId;
+    private String maxCollab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,6 +72,7 @@ public class PostActivity extends AppCompatActivity {
         final String postId = getIntent().getStringExtra("post_id");
         final String uid = getIntent().getStringExtra("uid");
         ownerId = getIntent().getStringExtra("user_id");
+        maxCollab = getIntent().getStringExtra("maxCollab");
 
         Log.d(TAG, "post_id:"+postId);
 
@@ -96,6 +98,7 @@ public class PostActivity extends AppCompatActivity {
         getWindow().setAttributes(attr);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION, WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
         }
@@ -128,12 +131,15 @@ public class PostActivity extends AppCompatActivity {
 
         Log.d(TAG, currentUserID+"/"+ownerId);
 
+
+
         requestCollab.child(currentUserID).child("sent").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 if (!currentUserID.equals(ownerId))
                 {
+
                     if (dataSnapshot.hasChild(postId)) {
                         Log.d(TAG, "postId: " + postId + " owner: " + ownerId);
                         String req_type = dataSnapshot.child(postId).child("request_type").getValue().toString();
@@ -155,10 +161,69 @@ public class PostActivity extends AppCompatActivity {
 
             }
         });
+
+        Log.d(TAG, "requestcode-postid: "+postId);
+        postDatabase.child("collab").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                Log.d(TAG, "requestcode: "+ requestCode+ " "+ currentUserID);
+                if (dataSnapshot.hasChild(currentUserID)){
+
+                    requestCode = "approved";
+                    collabBtn.setText("Leave party");
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        Log.d(TAG, "requestcode: "+ requestCode);
+
         // on sending request to collab with other users
         collabBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                // leaving party
+                if (requestCode.equals("approved")){
+
+                    Map request = new HashMap();
+
+                    request.put("/"+ postId+ "/collab" +currentUserID+"/timestamp", null);
+
+                    postDatabase.updateChildren(request, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+
+                            if (databaseError == null){
+
+                                userDatabase.child(currentUserID).child("events").child(postId).child("created").removeValue(new DatabaseReference.CompletionListener() {
+                                    @Override
+                                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                        postDatabase.child("collab").child(currentUserID).removeValue();
+                                        requestCode = "req_null";
+                                        finish();
+
+                                    }
+                                });
+
+
+                            }
+
+
+                        }
+                    });
+
+
+                }
 
 
                 // sending request
@@ -261,7 +326,7 @@ public class PostActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 String foodName = dataSnapshot.child("foodname").getValue().toString();
-                String maxCollab = dataSnapshot.child("maxCollabNum").getValue().toString();
+                maxCollab = dataSnapshot.child("maxCollabNum").getValue().toString();
                 final String thumb_image =  dataSnapshot.child("thumb_image").getValue().toString();
 
                 postName.setText(foodName);
