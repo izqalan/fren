@@ -132,8 +132,6 @@ public class EditPostActivity extends AppCompatActivity {
 
 
 
-
-
         rootRef = FirebaseDatabase.getInstance().getReference();
         postsDatabase = FirebaseDatabase.getInstance().getReference().child("Posts");
         firebaseStorage = FirebaseStorage.getInstance().getReference();
@@ -311,6 +309,9 @@ public class EditPostActivity extends AppCompatActivity {
                                 Log.e(TAG, databaseError.getMessage());
                             }
                             if (databaseError == null){
+
+                                rootRef.child("Posts").child(postId).child("collab").child(currentUser)
+                                        .child("timestamp").setValue(ServerValue.TIMESTAMP);
 
                                 progressDialog.setTitle("Creating post");
                                 progressDialog.setMessage("Please wait a moment wile we creating your post");

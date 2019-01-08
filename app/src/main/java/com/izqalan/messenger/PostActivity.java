@@ -25,11 +25,14 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.Toolbar;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -503,6 +506,16 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 return true;
 
             case R.id.delete_post_btn:
+                finish();
+                postDatabase.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        Toast.makeText(PostActivity.this, "Post removed", Toast.LENGTH_SHORT).show();
+                        adapter.notifyDataSetChanged();
+
+                    }
+                });
+
 
                 return true;
 
