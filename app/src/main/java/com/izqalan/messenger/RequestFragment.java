@@ -27,6 +27,8 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
 
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,13 +47,16 @@ public class RequestFragment extends Fragment {
     private ImageButton rejectBtn;
 
     private FirebaseAuth mAuth;
+
     private DatabaseReference friendRequestDatabase;
     private DatabaseReference userDatabse;
     private DatabaseReference postsDatabase;
     private DatabaseReference collabReq;
     private DatabaseReference collabReqRecycler;
-    private FirebaseRecyclerAdapter adapter;
-    private FirebaseRecyclerAdapter collabAdapter;
+    private DatabaseReference rootRef;
+
+    private FirebaseRecyclerAdapter<Requests, RequestHolder> adapter;
+    private FirebaseRecyclerAdapter<Requests, RequestHolder> collabAdapter;
     private String currentUserId;
 
     private static final String TAG = "RequestFragment";
@@ -78,8 +83,9 @@ public class RequestFragment extends Fragment {
 
         mAuth = FirebaseAuth.getInstance();
         friendRequestDatabase = FirebaseDatabase.getInstance().getReference().child("Friend_req")
-                .child(currentUserId);
+                .child(currentUserId).child("received");
 
+        rootRef = FirebaseDatabase.getInstance().getReference();
         userDatabse = FirebaseDatabase.getInstance().getReference().child("Users");
         collabReq = FirebaseDatabase.getInstance().getReference().child("Collab_req");
         collabReqRecycler = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId).child("received");
@@ -151,7 +157,36 @@ public class RequestFragment extends Fragment {
                                                 @Override
                                                 public void onClick(View view) {
 
-                                                    Toast.makeText(getContext(), "Approved" + user_id, Toast.LENGTH_SHORT).show();
+                                                    Log.d(TAG, "CLICKED APPROVE BTUUNO");
+                                                    // save friendship relation into user database
+                                                    final String currentDate = DateFormat.getDateTimeInstance().format(new Date());
+
+                                                    Map<String, Object> friendsMap = new HashMap<>();
+
+                                                    Log.d(TAG, "currentuid: "+currentUserId+ " userId: "+ user_id);
+
+                                                    // remove friend_req from friendRequestDB
+                                                    friendsMap.put("/Friend_req/"+currentUserId+"/received/"+user_id+"/request_type", null);
+                                                    friendsMap.put("/Friend_req/"+user_id+"/sent/"+currentUserId+"/request_type", null);
+
+                                                    // add friend request
+                                                    friendsMap.put("Friends/"+currentUserId+"/"+user_id+"/date", currentDate); // save into user1 db
+                                                    friendsMap.put("Friends/"+user_id+"/"+currentUserId+"/date", currentDate); // save into user2 db
+
+
+                                                    rootRef.updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
+                                                        @Override
+                                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                                            if (databaseError != null){
+
+                                                                Toast.makeText(getContext(), "Error: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                                            }
+
+                                                        }
+                                                    });
+
+
 
                                                 }
                                             });
@@ -159,7 +194,20 @@ public class RequestFragment extends Fragment {
                                                 @Override
                                                 public void onClick(View view) {
 
-                                                    Toast.makeText(getContext(), "Rejected", Toast.LENGTH_SHORT).show();
+                                                    Map<String, Object> receivedMap = new HashMap<>();
+                                                    receivedMap.put("Friend_req/"+currentUserId+"/received/"+user_id+"/request_type", null);
+                                                    receivedMap.put("Friend_req/"+user_id+"/sent/"+currentUserId+"/request_type", null);
+
+                                                    rootRef.updateChildren(receivedMap, new DatabaseReference.CompletionListener() {
+                                                        @Override
+                                                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+                                                            if (!databaseError.equals(null)){
+
+                                                                Toast.makeText(getContext(), "Error: " + databaseError.getMessage(), Toast.LENGTH_LONG).show();
+                                                            }                                                        }
+                                                    });
+
 
                                                 }
                                             });
@@ -258,7 +306,7 @@ public class RequestFragment extends Fragment {
 
                                             Toast.makeText(getContext(), "Approved" + name, Toast.LENGTH_SHORT).show();
 
-                                            final Map collabRequest = new HashMap();
+                                            final Map<String, Object> collabRequest = new HashMap<>();
 
                                             collabRequest.put("/collab/"+sender+"/timestamp", ServerValue.TIMESTAMP);
 
@@ -268,7 +316,7 @@ public class RequestFragment extends Fragment {
 
                                                     if(databaseError == null){
 
-                                                        final Map nMap = new HashMap();
+                                                        final Map<String, Object> nMap = new HashMap<String, Object>();
                                                         Log.d(TAG, "removing request"+postId);
                                                         nMap.put("/"+reqId+"/post_id", null);
                                                         nMap.put("/"+reqId+"/request_type", null);
@@ -283,7 +331,7 @@ public class RequestFragment extends Fragment {
                                                                     DatabaseReference collabReqSent = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(sender).child("sent");
                                                                     Log.d(TAG, "sender/"+sender);
 
-                                                                    final Map sentMap = new HashMap();
+                                                                    final Map<String, Object> sentMap = new HashMap<>();
                                                                     Log.d(TAG, "removing request"+postId);
                                                                     sentMap.put("/"+postId+"/request_id", null);
                                                                     sentMap.put("/"+postId+"/owner", null);
@@ -306,7 +354,7 @@ public class RequestFragment extends Fragment {
 
 
                                                         // made this for user joined / posts history
-                                                        Map eventMap = new HashMap();
+                                                        Map<String, Object> eventMap = new HashMap<String, Object>();
 
                                                         eventMap.put("/events/"+postId+"/created", ServerValue.TIMESTAMP);
 
@@ -333,7 +381,7 @@ public class RequestFragment extends Fragment {
                                         public void onClick(View view) {
 
                                             Toast.makeText(getContext(), "Rejected", Toast.LENGTH_SHORT).show();
-                                            Map nMap = new HashMap();
+                                            Map<String, Object> nMap = new HashMap<>();
                                             Log.d(TAG, "removing request"+postId);
                                             nMap.put("/"+reqId+"/post_id", null);
                                             nMap.put("/"+reqId+"/request_type", null);

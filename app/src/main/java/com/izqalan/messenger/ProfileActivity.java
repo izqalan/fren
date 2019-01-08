@@ -148,7 +148,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 // Live DB checker
 
-                friendRequestDB.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                friendRequestDB.child(currentUser.getUid()).child("received").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -178,7 +178,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 Log.d(TAG, "friendship: is "+ friendship );
                 // check friendship status for the button
-                friendDatabase.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                friendDatabase.child(currentUser.getUid()).child("received").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
@@ -319,8 +319,8 @@ public class ProfileActivity extends AppCompatActivity {
                     friendsMap.put("Friends/"+uid+"/"+currentUser.getUid()+"/date", currentDate); // save into user2 db
 
                     // remove friend_req from friendRequestDB
-                    friendsMap.put("Friend_req/"+currentUser.getUid()+"/sent/"+uid, null);
-                    friendsMap.put("Friend_req/"+uid+"/received/"+currentUser.getUid(), null);
+                    friendsMap.put("Friend_req/"+currentUser.getUid()+"/received/"+uid, null);
+                    friendsMap.put("Friend_req/"+uid+"/sent/"+currentUser.getUid(), null);
 
                     rootRef.updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
                         @Override
