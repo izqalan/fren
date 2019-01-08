@@ -12,14 +12,20 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
+import android.widget.Toolbar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -40,11 +46,12 @@ import com.theartofdev.edmodo.cropper.CropImageView;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import de.hdodenhof.circleimageview.CircleImageView;
 import id.zelory.compressor.Compressor;
 
 public class EditPostActivity extends AppCompatActivity {
@@ -56,7 +63,12 @@ public class EditPostActivity extends AppCompatActivity {
     private Button editTime;
     private EditText maxCollab;
     private FloatingActionButton createPostBtn;
-    private CircleImageView foodImg;
+    private ImageView foodImg;
+    private RecyclerView checkList;
+    private RecyclerView.Adapter<EditListAdapter.EditListViewHolder> adapter;
+    private ImageButton insertListBtn;
+    private EditText addList;
+    private ArrayList<ListItem> items;
 
     private ProgressDialog progressDialog;
 
@@ -68,8 +80,10 @@ public class EditPostActivity extends AppCompatActivity {
     private FirebaseAuth mAuth = FirebaseAuth.getInstance();
     private StorageReference firebaseStorage;
 
-    private String pushId;
+    private String postId;
+    private String itemId;
 
+    private Toolbar toolbar;
 
     private String addressLine;
     private Double lat, lgn;
@@ -97,19 +111,59 @@ public class EditPostActivity extends AppCompatActivity {
         createPostBtn = findViewById(R.id.save_post_btn);
         progressDialog = new ProgressDialog(this);
 
+        checkList = findViewById(R.id.edit_checklist);
+        addList = findViewById(R.id.input_list);
+        insertListBtn = findViewById(R.id.input_list_btn);
+
+
+
+
+        createItemList();
+        buildRecyclerView();
+
+        insertListBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                insertItem(addList.getText().toString());
+                addList.getText().clear();
+            }
+        });
+
+
+
+
+
         rootRef = FirebaseDatabase.getInstance().getReference();
         postsDatabase = FirebaseDatabase.getInstance().getReference().child("Posts");
         firebaseStorage = FirebaseStorage.getInstance().getReference();
 
-        if (pushId == null){
+        Intent fromPostIntent = getIntent();
+
+        postId = fromPostIntent.getStringExtra("post_id");
+        Log.d(TAG, "PID: "+postId);
+
+        if (postId == null){
+
             DatabaseReference pushPosts = postsDatabase.child(currentUser).push();
-            pushId = pushPosts.getKey();
+            postId = pushPosts.getKey();
+
+        }else{
+
+            foodName.setText(fromPostIntent.getStringExtra("foodname"));
+            description.setText(fromPostIntent.getStringExtra("desc"));
+            location.setText(fromPostIntent.getStringExtra("address"));
+            editDate.setText(fromPostIntent.getStringExtra("date"));
+            editTime.setText(fromPostIntent.getStringExtra("time"));
+            maxCollab.setText(fromPostIntent.getStringExtra("maxCollabNum"));
+            lat = fromPostIntent.getDoubleExtra("lat", 0);
+            lgn = fromPostIntent.getDoubleExtra("lgn", 0);
+
+            Uri thumb_img = Uri.parse(fromPostIntent.getStringExtra("thumb_image"));
+            foodImg.setImageURI(thumb_img);
+            Log.d(TAG, "foodname "+foodName);
 
         }
-
-
-
-
 
         location.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,61 +233,126 @@ public class EditPostActivity extends AppCompatActivity {
 
                 String userPostRef = "Posts/";
 
-                if (pushId == null){
-                    DatabaseReference pushPosts = postsDatabase.child(currentUser).push();
-                    pushId = pushPosts.getKey();
+                if(TextUtils.isEmpty(foodName.getText())){
+
+                    foodName.setError("Food name is required!");
+                    Toast.makeText(EditPostActivity.this, foodName.getError(), Toast.LENGTH_SHORT).show();
 
                 }
+                else if(TextUtils.isEmpty(description.getText())){
 
-                String food_name = foodName.getText().toString();
-                String desc = description.getText().toString();
-                maxCollabNum = maxCollab.getText().toString();
-                String current_user_thumb = rootRef.child("Users").child(currentUser).child("thumb_image").toString();
+                    description.setError("description is required");
+                    Toast.makeText(EditPostActivity.this, description.getError(), Toast.LENGTH_SHORT).show();
 
-                Map postVal = new HashMap();
-                postVal.put("owner", currentUser);
-                postVal.put("foodname", food_name);
-                postVal.put("desc", desc);
-                postVal.put("date", date);
-                postVal.put("time", time);
-                postVal.put("maxCollabNum", maxCollabNum);
-                postVal.put("address", addressLine);
-                postVal.put("lat", lat);
-                postVal.put("lgn", lgn);
-                postVal.put("image", downloadUrl);
-                postVal.put("thumb_image", thumb_downloadUrl);
-                postVal.put("timestamp", ServerValue.TIMESTAMP);
-
-                if (postVal.get("image") == null){
-                    postVal.put("image", "default");
-                    postVal.put("thumb_image", "default");
                 }
+                else if (TextUtils.isEmpty(addressLine)){
 
-                // TODO: Bug! cannot stores Owner as collaborators
-                Map storeMap = new HashMap();
+                    Toast.makeText(EditPostActivity.this, "Please choose your location", Toast.LENGTH_SHORT).show();
 
-                storeMap.put(userPostRef+pushId, postVal);
+                }
+                else if (TextUtils.isEmpty(date)){
+
+                    Toast.makeText(EditPostActivity.this, "Date is not specified", Toast.LENGTH_SHORT).show();
+
+                }
+                else if (TextUtils.isEmpty(time)){
+
+                    Toast.makeText(EditPostActivity.this, "Time is not specified", Toast.LENGTH_SHORT).show();
+
+                }
+                else if (TextUtils.isEmpty(maxCollab.getText())){
+
+                    Toast.makeText(EditPostActivity.this, "max number of collaborator is not specified", Toast.LENGTH_SHORT).show();
+
+                }
+                else {
+
+                    if (postId == null){
+                        DatabaseReference pushPosts = postsDatabase.child(currentUser).push();
+                        postId = pushPosts.getKey();
+
+                    }
+
+                    String food_name = foodName.getText().toString();
+                    String desc = description.getText().toString();
+                    maxCollabNum = maxCollab.getText().toString();
+                    String current_user_thumb = rootRef.child("Users").child(currentUser).child("thumb_image").toString();
+
+                    Map<String, Object> postVal = new HashMap<>();
+                    postVal.put("owner", currentUser);
+                    postVal.put("foodname", food_name);
+                    postVal.put("desc", desc);
+                    postVal.put("date", date);
+                    postVal.put("time", time);
+                    postVal.put("maxCollabNum", maxCollabNum);
+                    postVal.put("address", addressLine);
+                    postVal.put("lat", lat);
+                    postVal.put("lgn", lgn);
+                    postVal.put("image", downloadUrl);
+                    postVal.put("thumb_image", thumb_downloadUrl);
+                    postVal.put("timestamp", ServerValue.TIMESTAMP);
+
+                    if (postVal.get("image") == null){
+                        postVal.put("image", "default");
+                        postVal.put("thumb_image", "default");
+                    }
+
+                    // TODO: Bug! cannot stores Owner as collaborators
+                    Map<String, Object> storeMap = new HashMap<>();
+
+                    storeMap.put(userPostRef+postId, postVal);
 //                storeMap.put("Posts/"+pushId+"/collab/"+currentUser+"/thumb_image", current_user_thumb);
 
-                rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
-                    @Override
-                    public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                    rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
+                        @Override
+                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
 
-                        if (databaseError != null){
-                            Log.e(TAG, databaseError.getMessage());
+                            if (databaseError != null){
+                                Log.e(TAG, databaseError.getMessage());
+                            }
+                            if (databaseError == null){
+
+                                progressDialog.setTitle("Creating post");
+                                progressDialog.setMessage("Please wait a moment wile we creating your post");
+                                progressDialog.setCanceledOnTouchOutside(false);
+                                progressDialog.show();
+                                Toast.makeText(EditPostActivity.this,"Post created",Toast.LENGTH_LONG).show();
+
+                            }
+                            finish();
                         }
-                        if (databaseError == null){
+                    });
 
-                            progressDialog.setTitle("Creating post");
-                            progressDialog.setMessage("Please wait a moment wile we creating your post");
-                            progressDialog.setCanceledOnTouchOutside(false);
-                            progressDialog.show();
-                            Toast.makeText(EditPostActivity.this,"Post created",Toast.LENGTH_LONG).show();
+                    // storing item list
+                    if (!items.isEmpty()){
+
+                        HashMap<String, String> listMap = new HashMap<>();
+
+                        for (ListItem value: items){
+                            DatabaseReference pushList = postsDatabase.child(postId).child("checklist").push();
+                            itemId = pushList.getKey();
+
+                            String i = value.getItem();
+                            listMap.put("item", i);
+
+                            Map<String, Object> storeMap2 = new HashMap<>();
+                            storeMap2.put(userPostRef+postId+"/checklist/"+itemId, listMap);
+
+                            rootRef.updateChildren(storeMap2, new DatabaseReference.CompletionListener() {
+                                @Override
+                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+                                    Toast.makeText(EditPostActivity.this,"checklist created",Toast.LENGTH_LONG).show();
+                                }
+                            });
 
                         }
-                        finish();
                     }
-                });
+
+
+
+
+                }
+
 
             }
         });
@@ -251,6 +370,32 @@ public class EditPostActivity extends AppCompatActivity {
             }
         });
 
+
+
+
+    }
+
+    private void insertItem(String item) {
+
+        items.add(new ListItem(item));
+        Log.d(TAG, "items.indexof(): "+ adapter.getItemCount());
+        adapter.notifyItemInserted(adapter.getItemCount());
+        Toast.makeText(this, "Item added", Toast.LENGTH_SHORT);
+
+    }
+
+    private void buildRecyclerView() {
+
+        checkList.setHasFixedSize(true);
+        checkList.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new EditListAdapter(items);
+        checkList.setAdapter(adapter);
+
+    }
+
+    private void createItemList() {
+
+        items = new ArrayList<ListItem>();
 
     }
 
@@ -296,7 +441,7 @@ public class EditPostActivity extends AppCompatActivity {
                 File thumb_uri = new File(resultUri.getPath());
 
                 // make random string for stored image
-                final String imgId = pushId;
+                final String imgId = postId;
 
                 // image compression before push to storage
                 Bitmap thumbnail = null;

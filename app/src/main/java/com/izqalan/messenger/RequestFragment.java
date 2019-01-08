@@ -79,6 +79,7 @@ public class RequestFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         friendRequestDatabase = FirebaseDatabase.getInstance().getReference().child("Friend_req")
                 .child(currentUserId);
+
         userDatabse = FirebaseDatabase.getInstance().getReference().child("Users");
         collabReq = FirebaseDatabase.getInstance().getReference().child("Collab_req");
         collabReqRecycler = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(currentUserId).child("received");

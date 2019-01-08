@@ -1,5 +1,6 @@
 package com.izqalan.messenger;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -11,13 +12,20 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -39,7 +47,7 @@ import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class PostActivity extends AppCompatActivity {
+public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuItemClickListener {
 
     private RecyclerView avatarList;
     private DatabaseReference collabDatabase;
@@ -53,6 +61,7 @@ public class PostActivity extends AppCompatActivity {
     private ImageView postImage;
     private TextView postName;
     private Button collabBtn;
+    private ImageButton settingsBtn;
 
     private static final String TAG = "PostActivity: ";
     private String ownerId;
@@ -63,13 +72,19 @@ public class PostActivity extends AppCompatActivity {
     private PostPagerAdapter postPagerAdapter;
     private String requestId;
     private String maxCollab;
+    private String foodName;
+    private String thumb_image;
+    private String address;
+    private String time, date, desc;
+    private String postId;
+    private double lat, lgn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_post);
 
-        final String postId = getIntent().getStringExtra("post_id");
+        postId = getIntent().getStringExtra("post_id");
         final String uid = getIntent().getStringExtra("uid");
         ownerId = getIntent().getStringExtra("user_id");
         maxCollab = getIntent().getStringExtra("maxCollab");
@@ -85,6 +100,9 @@ public class PostActivity extends AppCompatActivity {
         requestCollab = FirebaseDatabase.getInstance().getReference().child("Collab_req");
         postDatabase.keepSynced(true);
         collabDatabase.keepSynced(true);
+
+
+
 
         // make status bar transparent
         // get the current attributes of the current windows
@@ -117,13 +135,15 @@ public class PostActivity extends AppCompatActivity {
         postImage = findViewById(R.id.post_image);
         postName = findViewById(R.id.post_name);
         collabBtn = findViewById(R.id.collab_btn);
+        settingsBtn = findViewById(R.id.post_settings_btn);
 
         avatarList = findViewById(R.id.avatar_list);
         avatarList.setHasFixedSize(true);
         avatarList.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
 
-
-
+        if (!currentUserID.equals(ownerId)){
+            settingsBtn.setVisibility(View.GONE);
+        }
         if (currentUserID.equals(ownerId)){
             collabBtn.setVisibility(View.GONE);
         }
@@ -293,30 +313,6 @@ public class PostActivity extends AppCompatActivity {
 
                 }
 
-                // OP view of the button
-//                if (requestCode.equals("req_received")){
-//
-//                    final String currentDate = DateFormat.getDateTimeInstance().format(new Date());
-//
-//                    Map request = new HashMap();
-//
-//                    request.put("Posts/"+postId+"/collab/"+uid+"/date", currentDate);
-//
-//                    request.put("Collab_req/"+currentUserID+"/"+postId+"/"+uid, null);
-//                    request.put("Collab_req/"+uid+"/"+postId+"/"+currentUserID, null);
-//
-//                    rootRef.updateChildren(request, new DatabaseReference.CompletionListener() {
-//                        @Override
-//                        public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-//
-//                            if (databaseError == null){
-//                                requestCode = "req_approved";
-//                            }
-//                        }
-//                    });
-//
-//
-//                }
 
             }
         });
@@ -325,9 +321,16 @@ public class PostActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                String foodName = dataSnapshot.child("foodname").getValue().toString();
+                foodName = dataSnapshot.child("foodname").getValue().toString();
                 maxCollab = dataSnapshot.child("maxCollabNum").getValue().toString();
-                final String thumb_image =  dataSnapshot.child("thumb_image").getValue().toString();
+                thumb_image =  dataSnapshot.child("thumb_image").getValue().toString();
+                address = dataSnapshot.child("address").getValue().toString();
+                time = dataSnapshot.child("time").getValue().toString();
+                date = dataSnapshot.child("date").getValue().toString();
+                desc = dataSnapshot.child("desc").getValue().toString();
+                lat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
+                lgn = Double.parseDouble(dataSnapshot.child("lgn").getValue().toString());
+
 
                 postName.setText(foodName);
                 Picasso.get().load(thumb_image).networkPolicy(NetworkPolicy.OFFLINE).into(postImage, new Callback() {
@@ -463,6 +466,49 @@ public class PostActivity extends AppCompatActivity {
 
         }
 
+
+    }
+
+
+    // settings button use popup menu interface
+    // implements PopupMenu.OnMenuItemClickListener
+    public void showPopup(View v) {
+        PopupMenu popup = new PopupMenu(this, v,Gravity.RIGHT);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.post_menu);
+
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem menuItem) {
+
+        switch (menuItem.getItemId()){
+            case R.id.edit_post_btn:
+
+                Intent intent = new Intent(PostActivity.this, EditPostActivity.class);
+                intent.putExtra("post_id", postId);
+                intent.putExtra("foodname", foodName);
+                intent.putExtra("thumb_image", thumb_image);
+                intent.putExtra("address", address);
+                intent.putExtra("time", time);
+                intent.putExtra("date", date);
+                intent.putExtra("maxCollabNum",maxCollab);
+                intent.putExtra("desc", desc);
+                intent.putExtra("lat", lat);
+                intent.putExtra("lgn", lgn);
+
+                startActivity(intent);
+
+                return true;
+
+            case R.id.delete_post_btn:
+
+                return true;
+
+            default: return false;
+
+        }
 
     }
 }

@@ -5,87 +5,89 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EditPostActivity"
-    android:background="@color/colorPrimaryDark">
+    android:background="#fff"
+    android:paddingLeft="5dp"
+    android:paddingRight="5dp">
 
 
-    <RelativeLayout
-        android:layout_width="324dp"
-        android:layout_height="529dp"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="0dp"
-        android:background="@drawable/white_card">
+    <Button
+        android:id="@+id/edit_time"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/address"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="9dp"
+        android:background="@drawable/set_date_time_btn"
+        android:text="set time"
+        android:textColor="#fff" />
 
-        <Button
-            android:id="@+id/edit_time"
-            android:layout_width="100dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/address"
-            android:layout_alignParentEnd="true"
-            android:layout_marginTop="2dp"
-            android:background="@drawable/set_date_time_btn"
-            android:text="set time"
-            android:textColor="#fff"/>
+    <ImageView
+        android:id="@+id/food_img"
+        android:layout_width="102dp"
+        android:layout_height="91dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="11dp"
+        android:padding="10dp"
+        android:src="@drawable/default_avatar" />
 
-        <de.hdodenhof.circleimageview.CircleImageView
-            android:id="@+id/food_img"
-            android:layout_width="101dp"
-            android:layout_height="111dp"
-            android:layout_alignParentStart="true"
-            android:layout_alignParentTop="true"
-            android:padding="10dp"
-            android:src="@drawable/default_avatar" />
+    <EditText
+        android:id="@+id/food_name"
+        android:layout_width="179dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
 
-        <EditText
-            android:id="@+id/food_name"
-            android:layout_width="179dp"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="13dp"
-            android:ems="10"
-            android:hint="Food name"
-            android:textSize="14sp" />
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="11dp"
+        android:layout_marginEnd="54dp"
+        android:layout_toEndOf="@+id/food_img"
+        android:ems="10"
+        android:hint="Food name"
+        android:textSize="14sp" />
 
-        <EditText
-            android:id="@+id/desc"
-            android:layout_width="wrap_content"
-            android:layout_height="85dp"
-            android:layout_below="@+id/food_name"
-            android:layout_alignStart="@+id/food_name"
-            android:layout_alignParentEnd="true"
-            android:layout_marginStart="-2dp"
-            android:layout_marginTop="3dp"
-            android:layout_marginEnd="12dp"
-            android:ems="10"
-            android:hint="Description"
-            android:inputType="textMultiLine"
-            android:lines="6"
-            android:textSize="12sp" />
+    <EditText
+        android:id="@+id/desc"
+        android:layout_width="163dp"
+        android:layout_height="51dp"
+        android:layout_below="@+id/food_name"
+        android:layout_alignParentEnd="true"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="54dp"
+        android:layout_toEndOf="@+id/food_img"
+        android:ems="10"
+        android:hint="Description"
+        android:inputType="textMultiLine"
+        android:lines="6"
+        android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/address"
-            android:layout_width="wrap_content"
-            android:layout_height="48dp"
-            android:layout_below="@+id/desc"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="9dp"
-            android:text="Find location"
-            android:textSize="18sp" />
+    <TextView
+        android:id="@+id/address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/desc"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:layout_toEndOf="@+id/imageView"
+        android:text="Find location"
+        android:textSize="18sp" />
 
-        <Button
-            android:id="@+id/edit_date"
-            android:layout_width="191dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/address"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="0dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="13dp"
-            android:layout_toStartOf="@+id/edit_time"
-            android:background="@drawable/set_date_time_btn"
-            android:text="Set Date"
-            android:textColor="#fff"/>
+    <Button
+        android:id="@+id/edit_date"
+        android:layout_width="191dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/address"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="7dp"
+        android:layout_marginEnd="13dp"
+        android:layout_toStartOf="@+id/edit_time"
+        android:background="@drawable/set_date_time_btn"
+        android:text="Set Date"
+        android:textColor="#fff" />
 
         <EditText
             android:id="@+id/num_collab"
@@ -99,19 +101,65 @@
             android:hint="max num"
             android:inputType="number" />
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/save_post_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_marginEnd="7dp"
-            android:layout_marginBottom="13dp"
-            android:clickable="true"
-            app:backgroundTint="#5eaec9"
-            app:srcCompat="@drawable/ic_edit_check" />
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/edit_checklist"
+        android:layout_width="344dp"
+        android:layout_height="225dp"
+        android:layout_below="@+id/num_collab"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="-1dp"></android.support.v7.widget.RecyclerView>
 
-    </RelativeLayout>
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/save_post_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="156dp"
+        android:layout_marginBottom="7dp"
+        android:clickable="true"
+        app:backgroundTint="#5eaec9"
+        app:srcCompat="@drawable/ic_edit_check" />
+
+    <EditText
+        android:id="@+id/input_list"
+        style="@android:style/Widget.Material.Light.EditText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="5dp"
+        android:layout_marginEnd="1dp"
+        android:layout_marginBottom="52dp"
+        android:layout_toStartOf="@+id/input_list_btn"
+        android:ems="10"
+        android:hint="Add Item"
+        android:inputType="textMultiLine"
+        android:textAppearance="@android:style/TextAppearance.Material.Widget.EditText" />
+
+    <ImageButton
+        android:id="@+id/input_list_btn"
+        style="@android:style/Widget.Material.Light.ImageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/edit_time"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="-12dp"
+        android:layout_marginBottom="52dp"
+        android:layout_weight="1"
+        android:backgroundTint="#ffffff"
+        app:srcCompat="@drawable/round_send_24" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="9dp"
+        android:layout_marginTop="112dp"
+        app:srcCompat="@drawable/ic_pin" />
+
 
 
 </RelativeLayout>

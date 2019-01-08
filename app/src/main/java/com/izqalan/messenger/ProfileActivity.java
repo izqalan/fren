@@ -216,8 +216,8 @@ public class ProfileActivity extends AppCompatActivity {
                 if (friendship.equals("req_received"))
                 {
                     Map receivedMap = new HashMap();
-                    receivedMap.put("Friend_req/"+currentUser.getUid()+"/"+uid, null);
-                    receivedMap.put("Friend_req/"+uid+"/"+currentUser.getUid(), null);
+                    receivedMap.put("Friend_req/"+currentUser.getUid()+"/sent/"+uid, null);
+                    receivedMap.put("Friend_req/"+uid+"/received/"+currentUser.getUid(), null);
 
                     rootRef.updateChildren(receivedMap, new DatabaseReference.CompletionListener() {
                         @Override
@@ -247,8 +247,8 @@ public class ProfileActivity extends AppCompatActivity {
                 if(friendship.equals("not_friend")){
 
                     Map requestMap = new HashMap();
-                    requestMap.put(currentUser.getUid()+"/"+uid+"/request_type", "sent");
-                    requestMap.put(uid+"/"+currentUser.getUid()+"/request_type", "received");
+                    requestMap.put(currentUser.getUid()+"/sent/"+uid+"/request_type", "sent");
+                    requestMap.put(uid+"/received/"+currentUser.getUid()+"/request_type", "received");
 
                     // update children run 2 queries (requestMap) at a time. improve performance
                     friendRequestDB.updateChildren(requestMap, new DatabaseReference.CompletionListener() {
@@ -286,8 +286,8 @@ public class ProfileActivity extends AppCompatActivity {
                 if(friendship.equals("req_sent")){
 
                     Map cancelMap = new HashMap();
-                    cancelMap.put("Friend_req/"+currentUser.getUid()+"/"+uid, null);
-                    cancelMap.put("Friend_req/"+uid+"/"+currentUser.getUid(), null);
+                    cancelMap.put("Friend_req/"+currentUser.getUid()+"/sent/"+uid, null);
+                    cancelMap.put("Friend_req/"+uid+"/received/"+currentUser.getUid(), null);
 
                     rootRef.updateChildren(cancelMap, new DatabaseReference.CompletionListener()
                     {
@@ -319,8 +319,8 @@ public class ProfileActivity extends AppCompatActivity {
                     friendsMap.put("Friends/"+uid+"/"+currentUser.getUid()+"/date", currentDate); // save into user2 db
 
                     // remove friend_req from friendRequestDB
-                    friendsMap.put("Friend_req/"+currentUser.getUid()+"/"+uid, null);
-                    friendsMap.put("Friend_req/"+uid+"/"+currentUser.getUid(), null);
+                    friendsMap.put("Friend_req/"+currentUser.getUid()+"/sent/"+uid, null);
+                    friendsMap.put("Friend_req/"+uid+"/received/"+currentUser.getUid(), null);
 
                     rootRef.updateChildren(friendsMap, new DatabaseReference.CompletionListener() {
                         @Override
