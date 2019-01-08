@@ -4,6 +4,8 @@ public class ListItem {
 
     private String item;
 
+    public ListItem(){ }
+
     public ListItem(String item){
 
         this.item = item;
