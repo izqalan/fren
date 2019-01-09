@@ -77,7 +77,9 @@ public class MeetupFragment extends Fragment {
                     lat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
                     lgn = Double.parseDouble(dataSnapshot.child("lgn").getValue().toString());
                     addressLineView.setText(addressLine);
-                    uri = String.format(Locale.ENGLISH, "geo:%f,%f", lat, lgn);
+                    // open google maps and drop pin
+                    uri = String.format(Locale.ENGLISH, "geo:%f,%f?z=17&q=%f,%f", lat, lgn,lat, lgn);
+
                 }
 
 
