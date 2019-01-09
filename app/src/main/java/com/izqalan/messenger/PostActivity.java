@@ -134,7 +134,6 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         newTabLAyout.setupWithViewPager(vp);
 
 
-
         postImage = findViewById(R.id.post_image);
         postName = findViewById(R.id.post_name);
         collabBtn = findViewById(R.id.collab_btn);
@@ -244,7 +243,6 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
                         }
                     });
-
 
                 }
 

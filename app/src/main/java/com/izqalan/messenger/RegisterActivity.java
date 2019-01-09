@@ -72,6 +72,16 @@ public class RegisterActivity extends AppCompatActivity {
                 String reg_email = email.getText().toString();
                 String reg_password = password.getText().toString();
 
+                if (TextUtils.isEmpty(reg_name)){
+                    username.setError("Username cannot be empty");
+                }
+                if (TextUtils.isEmpty(reg_email)){
+                    email.setError("Invalid email");
+                }
+                if (TextUtils.isEmpty(reg_password) || reg_password.length() < 6){
+                    password.setError("Password must be at least 6 characters");
+                }
+
                 // null checking
                 if(!TextUtils.isEmpty(reg_name) || !TextUtils.isEmpty(reg_email) || !TextUtils.isEmpty(reg_password)){
                     regProgress.setTitle("Registering user");
@@ -81,6 +91,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                     registerUser(reg_name, reg_email, reg_password);
                 }
+
 
 
 

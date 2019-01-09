@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -32,7 +34,7 @@ public class ChecklistFragment extends Fragment {
     private View mainView;
     private RecyclerView checkList;
     private DatabaseReference checklistDatabase;
-    private FirebaseRecyclerAdapter adapter;
+    private FirebaseRecyclerAdapter<ListItem, ListViewHolder> adapter;
 
     private String postId;
 
@@ -78,10 +80,17 @@ public class ChecklistFragment extends Fragment {
 
         adapter = new FirebaseRecyclerAdapter<ListItem, ListViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final ListViewHolder holder, int position, @NonNull ListItem model) {
+            protected void onBindViewHolder(@NonNull final ListViewHolder holder, final int position, @NonNull ListItem model) {
 
-                String itemId = getRef(position).getKey();
+                final String itemId = getRef(position).getKey();
                 Log.d(TAG, "itemId: "+ itemId);
+
+                final ArrayList<String> idMap = new ArrayList<>();
+                idMap.add(getRef(position).getKey());
+
+                FragmentActivity i = getActivity();
+
+                i.getIntent().putExtra("idMap", idMap);
 
                 checklistDatabase.child(itemId).addValueEventListener(new ValueEventListener() {
                     @Override
@@ -93,11 +102,13 @@ public class ChecklistFragment extends Fragment {
                             holder.setItem(val);
                             Log.d(TAG, "item: "+ val);
 
+
                         }
                         else {
 
                             holder.setItem("No listed item");
                         }
+
 
                     }
 
@@ -106,6 +117,7 @@ public class ChecklistFragment extends Fragment {
 
                     }
                 });
+                Log.d(TAG, "idMap len new: "+ idMap.size());
 
             }
 

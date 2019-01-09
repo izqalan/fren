@@ -1,5 +1,6 @@
 package com.izqalan.messenger;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
@@ -31,10 +32,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -49,6 +52,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -90,6 +94,7 @@ public class EditPostActivity extends AppCompatActivity {
     private String date;
     private String time;
     private String maxCollabNum;
+    private ArrayList<String> arrayChecklist = new ArrayList<>();
 
     private String TAG = "EditPostActivity";
     private String currentUser = mAuth.getCurrentUser().getUid();
@@ -118,6 +123,7 @@ public class EditPostActivity extends AppCompatActivity {
 
 
 
+        // insert item into list
         createItemList();
         buildRecyclerView();
 
@@ -125,8 +131,13 @@ public class EditPostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                insertItem(addList.getText().toString());
-                addList.getText().clear();
+                if(TextUtils.isEmpty(addList.getText().toString())){
+                    addList.setError("Empty field");
+                }else {
+                    insertItem(addList.getText().toString());
+                    addList.getText().clear();
+                }
+
             }
         });
 
@@ -148,18 +159,60 @@ public class EditPostActivity extends AppCompatActivity {
 
         }else{
 
+            // pull data from PostActivity to edit
             foodName.setText(fromPostIntent.getStringExtra("foodname"));
             description.setText(fromPostIntent.getStringExtra("desc"));
             location.setText(fromPostIntent.getStringExtra("address"));
             editDate.setText(fromPostIntent.getStringExtra("date"));
+            date = fromPostIntent.getStringExtra("date");
             editTime.setText(fromPostIntent.getStringExtra("time"));
+            time = fromPostIntent.getStringExtra("time");
             maxCollab.setText(fromPostIntent.getStringExtra("maxCollabNum"));
             lat = fromPostIntent.getDoubleExtra("lat", 0);
             lgn = fromPostIntent.getDoubleExtra("lgn", 0);
+            addressLine = fromPostIntent.getStringExtra("address");
+            thumb_downloadUrl = fromPostIntent.getStringExtra("thumb_image");
+            downloadUrl = fromPostIntent.getStringExtra("thumb_image");
 
-            Uri thumb_img = Uri.parse(fromPostIntent.getStringExtra("thumb_image"));
-            foodImg.setImageURI(thumb_img);
-            Log.d(TAG, "foodname "+foodName);
+
+            postsDatabase.child(postId).child("checklist").addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                    if (dataSnapshot.exists()) {
+                        for (DataSnapshot postSnapshots : dataSnapshot.getChildren()) {
+
+                            // postSnapshots holding the item id
+                            String val = postSnapshots.child("item").getValue().toString();
+                            insertItem(val);
+
+                        }
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                }
+            });
+
+
+            final String thumb_image = fromPostIntent.getStringExtra("thumb_image");
+
+            Picasso.get().load(thumb_image).into(foodImg, new Callback() {
+                @Override
+                public void onSuccess() {
+                    Log.i(TAG, "food image inserted");
+                }
+
+                @Override
+                public void onError(Exception e) {
+                    // TODO: Pls add default food image
+                    Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar)
+                            .error(R.drawable.default_avatar).into(foodImg);
+                }
+            });
 
         }
 
@@ -248,12 +301,12 @@ public class EditPostActivity extends AppCompatActivity {
                     Toast.makeText(EditPostActivity.this, "Please choose your location", Toast.LENGTH_SHORT).show();
 
                 }
-                else if (TextUtils.isEmpty(date)){
+                else if (TextUtils.isEmpty(editDate.getText())){
 
                     Toast.makeText(EditPostActivity.this, "Date is not specified", Toast.LENGTH_SHORT).show();
 
                 }
-                else if (TextUtils.isEmpty(time)){
+                else if (TextUtils.isEmpty(editTime.getText())){
 
                     Toast.makeText(EditPostActivity.this, "Time is not specified", Toast.LENGTH_SHORT).show();
 
@@ -289,6 +342,7 @@ public class EditPostActivity extends AppCompatActivity {
                     postVal.put("image", downloadUrl);
                     postVal.put("thumb_image", thumb_downloadUrl);
                     postVal.put("timestamp", ServerValue.TIMESTAMP);
+
 
                     if (postVal.get("image") == null){
                         postVal.put("image", "default");
@@ -329,6 +383,7 @@ public class EditPostActivity extends AppCompatActivity {
 
                         HashMap<String, String> listMap = new HashMap<>();
 
+
                         for (ListItem value: items){
                             DatabaseReference pushList = postsDatabase.child(postId).child("checklist").push();
                             itemId = pushList.getKey();
@@ -348,14 +403,10 @@ public class EditPostActivity extends AppCompatActivity {
 
                         }
                     }
-
-
-
-
                 }
 
-
             }
+
         });
 
         //TODO: Add custom food image & pls redesign
@@ -369,13 +420,12 @@ public class EditPostActivity extends AppCompatActivity {
                         .setAspectRatio(1, 1)
                         .start(EditPostActivity.this);
             }
+
         });
-
-
-
 
     }
 
+    @SuppressLint("ShowToast")
     private void insertItem(String item) {
 
         items.add(new ListItem(item));
@@ -416,7 +466,7 @@ public class EditPostActivity extends AppCompatActivity {
                 location.setText(addressLine);
 
                 Log.d(TAG, "Location (EditPost): " + addressLine);
-                Log.d(TAG, "Location (EditPost): LatLgn" + lat + lgn );
+                Log.d(TAG, "Location (EditPost): LatLgn " + lat + lgn );
             }
             else {
                 Log.d(TAG, "Location (EditPost): " + addressLine);
