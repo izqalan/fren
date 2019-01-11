@@ -243,14 +243,17 @@ public class EditPostActivity extends AppCompatActivity {
                         android.R.style.Theme_Material_Light_Dialog_MinWidth, dateSetListener,
                         year, month, day);
 
+                datePickerDialog.getDatePicker().setMinDate(cal.getTime().getTime());
                 datePickerDialog.show();
             }
         });
 
+
+        // adapter for when already choose date from calender
         dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
-                date = day + "/" + month + "/" + year;
+                date = day + "/" + month+1 + "/" + year;
                 editDate.setText(date);
             }
         };
