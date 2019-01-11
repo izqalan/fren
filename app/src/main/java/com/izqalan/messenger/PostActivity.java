@@ -324,33 +324,35 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                foodName = dataSnapshot.child("foodname").getValue().toString();
-                thumb_image =  dataSnapshot.child("thumb_image").getValue().toString();
-                address = dataSnapshot.child("address").getValue().toString();
-                time = dataSnapshot.child("time").getValue().toString();
-                date = dataSnapshot.child("date").getValue().toString();
-                desc = dataSnapshot.child("desc").getValue().toString();
-                lat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
-                lgn = Double.parseDouble(dataSnapshot.child("lgn").getValue().toString());
+                if (dataSnapshot.exists()) {
+                    foodName = dataSnapshot.child("foodname").getValue().toString();
+                    thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                    address = dataSnapshot.child("address").getValue().toString();
+                    time = dataSnapshot.child("time").getValue().toString();
+                    date = dataSnapshot.child("date").getValue().toString();
+                    desc = dataSnapshot.child("desc").getValue().toString();
+                    lat = Double.parseDouble(dataSnapshot.child("lat").getValue().toString());
+                    lgn = Double.parseDouble(dataSnapshot.child("lgn").getValue().toString());
 
 
-                postName.setText(foodName);
-                Picasso.get().load(thumb_image).networkPolicy(NetworkPolicy.OFFLINE).into(postImage, new Callback() {
-                    @Override
-                    public void onSuccess() {
+                    postName.setText(foodName);
+                    Picasso.get().load(thumb_image).networkPolicy(NetworkPolicy.OFFLINE).into(postImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
 
-                    }
+                        }
 
-                    @Override
-                    public void onError(Exception e) {
-                        // when image haven't store on disk, picasso look out for image.
-                        Picasso.get()
-                                .load(thumb_image)
-                                .placeholder(R.drawable.default_avatar)
-                                .error(R.drawable.default_avatar)
-                                .into(postImage);
-                    }
-                });
+                        @Override
+                        public void onError(Exception e) {
+                            // when image haven't store on disk, picasso look out for image.
+                            Picasso.get()
+                                    .load(thumb_image)
+                                    .placeholder(R.drawable.default_avatar)
+                                    .error(R.drawable.default_avatar)
+                                    .into(postImage);
+                        }
+                    });
+                }
 
             }
 
