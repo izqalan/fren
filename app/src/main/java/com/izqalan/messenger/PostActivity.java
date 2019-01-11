@@ -1,6 +1,8 @@
 package com.izqalan.messenger;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -382,16 +384,19 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
                 final String user_id = getRef(position).getKey();
 
-
+                // onBindViewHolder will loop based on the number of children
+                final String[] thumb_image = new String[1];
+                final String[] username = new String[1];
 
                 userDatabase.child(user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                         if(dataSnapshot.exists()){
-                            final String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
-                            Log.d(TAG, "thumb_image: "+thumb_image);
-                            holder.setThumbImage(thumb_image);
+                            thumb_image[0] = dataSnapshot.child("thumb_image").getValue().toString();
+                            username[0] = dataSnapshot.child("name").getValue().toString();
+                            Log.d(TAG, "thumb_image: "+ thumb_image[0]);
+                            holder.setThumbImage(thumb_image[0]);
 
 
                         }
@@ -410,10 +415,35 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     @Override
                     public void onClick(View view) {
 
-                        // send value of id to another page
-                        Intent intent = new Intent(PostActivity.this, ProfileActivity.class);
-                        intent.putExtra("user_id", user_id );
-                        startActivity(intent);
+                        final CharSequence option[] = new CharSequence[]{"Open profile", "Send message"};
+
+                        AlertDialog.Builder builder = new AlertDialog.Builder(PostActivity.this);
+                        builder.setTitle("Select option");
+
+                        builder.setItems(option, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+
+                                if (i == 0){
+
+                                    Intent intent = new Intent(PostActivity.this, ProfileActivity.class);
+                                    intent.putExtra("user_id", user_id);
+                                    startActivity(intent);
+
+                                }
+                                if(i == 1){
+
+                                    Intent intent = new Intent(PostActivity.this, ChatActivity.class);
+                                    intent.putExtra("user_id", user_id);
+                                    intent.putExtra("name", username[0]);
+                                    intent.putExtra("avatar", thumb_image[0]);
+                                    startActivity(intent);
+
+
+                                }
+                            }
+                        });
+                        builder.show();
 
                     }
                 });
