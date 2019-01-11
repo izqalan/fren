@@ -74,7 +74,7 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
     private ViewPager vp;
     private PostPagerAdapter postPagerAdapter;
     private String requestId;
-    private String maxCollab;
+
     private String foodName;
     private String thumb_image;
     private String address;
@@ -90,7 +90,7 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         postId = getIntent().getStringExtra("post_id");
         final String uid = getIntent().getStringExtra("uid");
         ownerId = getIntent().getStringExtra("user_id");
-        maxCollab = getIntent().getStringExtra("maxCollab");
+
 
         Log.d(TAG, "post_id:"+postId);
 
@@ -323,7 +323,6 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                 foodName = dataSnapshot.child("foodname").getValue().toString();
-                maxCollab = dataSnapshot.child("maxCollabNum").getValue().toString();
                 thumb_image =  dataSnapshot.child("thumb_image").getValue().toString();
                 address = dataSnapshot.child("address").getValue().toString();
                 time = dataSnapshot.child("time").getValue().toString();
@@ -494,7 +493,6 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                 intent.putExtra("address", address);
                 intent.putExtra("time", time);
                 intent.putExtra("date", date);
-                intent.putExtra("maxCollabNum",maxCollab);
                 intent.putExtra("desc", desc);
                 intent.putExtra("lat", lat);
                 intent.putExtra("lgn", lgn);

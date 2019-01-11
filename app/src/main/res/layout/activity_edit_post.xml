@@ -24,13 +24,12 @@
 
     <ImageView
         android:id="@+id/food_img"
-        android:layout_width="102dp"
-        android:layout_height="91dp"
+        android:layout_width="93dp"
+        android:layout_height="93dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
         android:layout_marginStart="8dp"
         android:layout_marginTop="11dp"
-        android:padding="10dp"
         android:src="@drawable/default_avatar" />
 
     <EditText
@@ -89,25 +88,14 @@
         android:text="Set Date"
         android:textColor="#fff" />
 
-        <EditText
-            android:id="@+id/num_collab"
-            android:layout_width="111dp"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/edit_date"
-            android:layout_alignParentStart="true"
-            android:layout_marginStart="5dp"
-            android:layout_marginTop="12dp"
-            android:ems="10"
-            android:hint="max num"
-            android:inputType="number" />
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/edit_checklist"
         android:layout_width="344dp"
         android:layout_height="225dp"
-        android:layout_below="@+id/num_collab"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="-1dp"></android.support.v7.widget.RecyclerView>
+        android:layout_below="@+id/textView7"
+        android:layout_alignStart="@+id/food_img"
+        android:layout_marginStart="-4dp"
+        android:layout_marginTop="3dp"></android.support.v7.widget.RecyclerView>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/save_post_btn"
@@ -115,8 +103,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="156dp"
-        android:layout_marginBottom="7dp"
+        android:layout_marginEnd="160dp"
+        android:layout_marginBottom="14dp"
         android:clickable="true"
         app:backgroundTint="#5eaec9"
         app:srcCompat="@drawable/ic_edit_check" />
@@ -126,11 +114,13 @@
         style="@android:style/Widget.Material.Light.EditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_checklist"
         android:layout_alignParentStart="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="1dp"
-        android:layout_marginBottom="52dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginEnd="11dp"
+        android:layout_marginBottom="72dp"
         android:layout_toStartOf="@+id/input_list_btn"
         android:ems="10"
         android:hint="Add Item"
@@ -142,10 +132,12 @@
         style="@android:style/Widget.Material.Light.ImageButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/edit_checklist"
         android:layout_alignEnd="@+id/edit_time"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="-12dp"
-        android:layout_marginBottom="52dp"
+        android:layout_marginTop="0dp"
+        android:layout_marginEnd="-6dp"
+        android:layout_marginBottom="70dp"
         android:layout_weight="1"
         android:backgroundTint="#ffffff"
         app:srcCompat="@drawable/round_send_24" />
@@ -160,6 +152,18 @@
         android:layout_marginTop="112dp"
         app:srcCompat="@drawable/ic_pin" />
 
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/imageView"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="206dp"
+        android:fontFamily="sans-serif-condensed"
+        android:text="Item checklist"
+        android:textAllCaps="false"
+        android:textColor="#000"
+        android:textStyle="bold" />
 
 
 </RelativeLayout>

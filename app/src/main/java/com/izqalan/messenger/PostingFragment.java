@@ -110,7 +110,7 @@ public class PostingFragment extends Fragment {
                             final String time = dataSnapshot.child("time").getValue().toString();
                             final String owner = dataSnapshot.child("owner").getValue().toString();
                             final String address = dataSnapshot.child("address").getValue().toString();
-                            final String maxCollab = dataSnapshot.child("maxCollabNum").getValue().toString();
+
 
 
                             Log.d(TAG, image);
@@ -136,7 +136,7 @@ public class PostingFragment extends Fragment {
                                     intent.putExtra("uid", currentUserId);
                                     intent.putExtra("post_id", post_id);
                                     intent.putExtra("image", image);
-                                    intent.putExtra("maxCollab", maxCollab);
+
 
                                     startActivity(intent);
 

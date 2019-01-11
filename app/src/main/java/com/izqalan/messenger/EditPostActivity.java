@@ -65,7 +65,8 @@ public class EditPostActivity extends AppCompatActivity {
     private TextView location;
     private Button editDate;
     private Button editTime;
-    private EditText maxCollab;
+
+
     private FloatingActionButton createPostBtn;
     private ImageView foodImg;
     private RecyclerView checkList;
@@ -93,7 +94,7 @@ public class EditPostActivity extends AppCompatActivity {
     private Double lat, lgn;
     private String date;
     private String time;
-    private String maxCollabNum;
+
     private ArrayList<String> arrayChecklist = new ArrayList<>();
 
     private String TAG = "EditPostActivity";
@@ -112,7 +113,7 @@ public class EditPostActivity extends AppCompatActivity {
         location = findViewById(R.id.address);
         editDate = findViewById(R.id.edit_date);
         editTime = findViewById(R.id.edit_time);
-        maxCollab = findViewById(R.id.num_collab);
+
         createPostBtn = findViewById(R.id.save_post_btn);
         progressDialog = new ProgressDialog(this);
 
@@ -167,7 +168,6 @@ public class EditPostActivity extends AppCompatActivity {
             date = fromPostIntent.getStringExtra("date");
             editTime.setText(fromPostIntent.getStringExtra("time"));
             time = fromPostIntent.getStringExtra("time");
-            maxCollab.setText(fromPostIntent.getStringExtra("maxCollabNum"));
             lat = fromPostIntent.getDoubleExtra("lat", 0);
             lgn = fromPostIntent.getDoubleExtra("lgn", 0);
             addressLine = fromPostIntent.getStringExtra("address");
@@ -310,13 +310,7 @@ public class EditPostActivity extends AppCompatActivity {
 
                     Toast.makeText(EditPostActivity.this, "Time is not specified", Toast.LENGTH_SHORT).show();
 
-                }
-                else if (TextUtils.isEmpty(maxCollab.getText())){
-
-                    Toast.makeText(EditPostActivity.this, "max number of collaborator is not specified", Toast.LENGTH_SHORT).show();
-
-                }
-                else {
+                } else {
 
                     if (postId == null){
                         DatabaseReference pushPosts = postsDatabase.child(currentUser).push();
@@ -326,7 +320,6 @@ public class EditPostActivity extends AppCompatActivity {
 
                     String food_name = foodName.getText().toString();
                     String desc = description.getText().toString();
-                    maxCollabNum = maxCollab.getText().toString();
                     String current_user_thumb = rootRef.child("Users").child(currentUser).child("thumb_image").toString();
 
                     Map<String, Object> postVal = new HashMap<>();
@@ -335,7 +328,6 @@ public class EditPostActivity extends AppCompatActivity {
                     postVal.put("desc", desc);
                     postVal.put("date", date);
                     postVal.put("time", time);
-                    postVal.put("maxCollabNum", maxCollabNum);
                     postVal.put("address", addressLine);
                     postVal.put("lat", lat);
                     postVal.put("lgn", lgn);
