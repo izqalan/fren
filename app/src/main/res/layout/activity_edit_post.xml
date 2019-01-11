@@ -103,44 +103,11 @@
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="160dp"
-        android:layout_marginBottom="14dp"
+        android:layout_marginEnd="157dp"
+        android:layout_marginBottom="16dp"
         android:clickable="true"
         app:backgroundTint="#5eaec9"
         app:srcCompat="@drawable/ic_edit_check" />
-
-    <EditText
-        android:id="@+id/input_list"
-        style="@android:style/Widget.Material.Light.EditText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/edit_checklist"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="2dp"
-        android:layout_marginEnd="11dp"
-        android:layout_marginBottom="72dp"
-        android:layout_toStartOf="@+id/input_list_btn"
-        android:ems="10"
-        android:hint="Add Item"
-        android:inputType="textMultiLine"
-        android:textAppearance="@android:style/TextAppearance.Material.Widget.EditText" />
-
-    <ImageButton
-        android:id="@+id/input_list_btn"
-        style="@android:style/Widget.Material.Light.ImageButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/edit_checklist"
-        android:layout_alignEnd="@+id/edit_time"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="0dp"
-        android:layout_marginEnd="-6dp"
-        android:layout_marginBottom="70dp"
-        android:layout_weight="1"
-        android:backgroundTint="#ffffff"
-        app:srcCompat="@drawable/round_send_24" />
 
     <ImageView
         android:id="@+id/imageView"
@@ -164,6 +131,38 @@
         android:textAllCaps="false"
         android:textColor="#000"
         android:textStyle="bold" />
+
+    <LinearLayout
+        android:id="@+id/field_layout"
+        android:layout_width="355dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginBottom="71dp"
+        android:background="#ffffff"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/input_list"
+            style="@android:style/Widget.Material.Light.EditText"
+            android:layout_width="266dp"
+            android:layout_height="match_parent"
+            android:ems="10"
+            android:hint="Item"
+            android:textAppearance="@android:style/TextAppearance.Material.Widget.EditText" />
+
+        <ImageButton
+            android:id="@+id/input_list_btn"
+            style="@android:style/Widget.Material.Light.ImageButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:backgroundTint="#ffffff"
+            app:srcCompat="@drawable/round_send_24" />
+    </LinearLayout>
 
 
 </RelativeLayout>

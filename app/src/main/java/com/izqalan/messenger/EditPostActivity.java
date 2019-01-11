@@ -51,6 +51,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -333,7 +334,11 @@ public class EditPostActivity extends AppCompatActivity {
                     postVal.put("lgn", lgn);
                     postVal.put("image", downloadUrl);
                     postVal.put("thumb_image", thumb_downloadUrl);
-                    postVal.put("timestamp", ServerValue.TIMESTAMP);
+
+                    //  timestamp always increasing. firebase read from the smallest(old timestamp) to the latest
+                    // by negging the timestamp firebase will able to read the
+                    // data from the latest inserted timestamp
+                    postVal.put("timestamp", -1 * new Date().getTime());
 
 
                     if (postVal.get("image") == null){

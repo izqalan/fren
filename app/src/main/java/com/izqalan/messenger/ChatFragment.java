@@ -82,12 +82,12 @@ public class ChatFragment extends Fragment {
     {
 
         // sort by time
-        Query convQuery = messageDatabase.orderByChild("timestamp");
+//        Query convQuery = messageDatabase.orderByChild("timestamp");
 
         // builder
         FirebaseRecyclerOptions<Conversation> options =
                 new FirebaseRecyclerOptions.Builder<Conversation>()
-                .setQuery(convQuery, Conversation.class)
+                .setQuery(messageDatabase, Conversation.class)
                 .build();
 
         adapter = new FirebaseRecyclerAdapter<Conversation, ConViewHolder>(options) {
@@ -97,7 +97,8 @@ public class ChatFragment extends Fragment {
                 final String list_user_id = getRef(position).getKey();
 
                 // limit the message show to the latest message on the preview
-                Query lastMessageQuery = messageDatabase.child(list_user_id).limitToLast(1);
+//                Query lastMessageQuery = messageDatabase.child(list_user_id).limitToLast(1);
+                Query lastMessageQuery = messageDatabase.child(list_user_id);
 
                 lastMessageQuery.addChildEventListener(new ChildEventListener() {
                     @Override

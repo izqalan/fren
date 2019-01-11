@@ -84,9 +84,12 @@ public class PostingFragment extends Fragment {
 
     private void bindAdapter() {
 
+        // sort by time posted
+        Query postQuery = postDatabase.orderByChild("timestamp");
+
         FirebaseRecyclerOptions<Posts> options =
                 new FirebaseRecyclerOptions.Builder<Posts>()
-                .setQuery(postDatabase, Posts.class)
+                .setQuery(postQuery, Posts.class)
                 .build();
 
         adapter = new FirebaseRecyclerAdapter<Posts, PostViewHolder>(options) {
@@ -96,10 +99,8 @@ public class PostingFragment extends Fragment {
                 final String post_id = getRef(position).getKey();
                 Log.d(TAG, "post_id: "+ post_id);
 
-                DatabaseReference ref = postDatabase.child(post_id);
-                Query query = ref.orderByChild("timestamp");
 
-                query.addValueEventListener(new ValueEventListener() {
+                postDatabase.child(post_id).addValueEventListener(new ValueEventListener() {
 
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
