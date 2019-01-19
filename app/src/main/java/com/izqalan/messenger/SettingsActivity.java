@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -14,6 +15,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -56,8 +58,13 @@ public class SettingsActivity extends AppCompatActivity {
     private CircleImageView avatar;
     private TextView displayname;
     private TextView nbio;
+    private TextView homeLocation;
+    private TextView genderView;
     private Button changeAvatar;
     private Button updateBio;
+    private ImageButton editGenderBtn;
+    private ImageButton editNameBtn;
+    private ImageButton editHomeLocationBtn;
 
     private ProgressDialog progressDialog;
 
@@ -76,6 +83,16 @@ public class SettingsActivity extends AppCompatActivity {
         changeAvatar = findViewById(R.id.change_avatar_btn);
         updateBio = findViewById(R.id.settings_bio_btn);
 
+        homeLocation = findViewById(R.id.settings_location);
+        genderView = findViewById(R.id.settings_gender);
+
+
+        editNameBtn = findViewById(R.id.settings_name_btn);
+        editGenderBtn = findViewById(R.id.settings_gender_btn);
+        editHomeLocationBtn = findViewById(R.id.settings_location_btn);
+
+
+
         firebaseStorage = FirebaseStorage.getInstance().getReference();
 
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -85,46 +102,121 @@ public class SettingsActivity extends AppCompatActivity {
         userDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
         userDatabase.keepSynced(true); // stores local copy of data
 
+
+
+
+
         // addValueEventListener Listenting to query of databse
         userDatabase.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name = dataSnapshot.child("name").getValue().toString();
-                final String image = dataSnapshot.child("image").getValue().toString();
-                String bio = dataSnapshot.child("bio").getValue().toString();
-                String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                if (dataSnapshot.exists()) {
+                    String name = dataSnapshot.child("name").getValue().toString();
+                    final String image = dataSnapshot.child("image").getValue().toString();
+                    String bio = dataSnapshot.child("bio").getValue().toString();
+                    String thumb_image = dataSnapshot.child("thumb_image").getValue().toString();
+                    String gender = dataSnapshot.child("gender").getValue().toString();
+                    String home = dataSnapshot.child("home").getValue().toString();
 
-                displayname.setText(name);
-                nbio.setText(bio);
-                //
-                if(!image.equals("default")){
-                    Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE).into(avatar, new Callback() {
-                        @Override
-                        public void onSuccess() {
+                    if (gender.equals("Male")) {
+                        genderView.setTextColor(Color.BLUE);
+                    }else{
+                        genderView.setTextColor(Color.RED);
+                    }
+                    genderView.setText(gender);
+                    homeLocation.setText(home);
+                    displayname.setText(name);
+                    nbio.setText(bio);
+                    //
+                    if (!image.equals("default")) {
+                        Picasso.get().load(image).networkPolicy(NetworkPolicy.OFFLINE).into(avatar, new Callback() {
+                            @Override
+                            public void onSuccess() {
 
-                        }
+                            }
 
-                        @Override
-                        public void onError(Exception e) {
-                            // when image haven't store on disk, picasso look out for image.
-                            Picasso.get()
-                                    .load(image)
-                                    .placeholder(R.drawable.default_avatar)
-                                    .error(R.drawable.default_avatar)
-                                    .into(avatar);
-                        }
-                    });
+                            @Override
+                            public void onError(Exception e) {
+                                // when image haven't store on disk, picasso look out for image.
+                                Picasso.get()
+                                        .load(image)
+                                        .placeholder(R.drawable.default_avatar)
+                                        .error(R.drawable.default_avatar)
+                                        .into(avatar);
+                            }
+                        });
+
+                    } else {
+                        Picasso.get().load(R.drawable.default_avatar).into(avatar);
+                    }
+
 
                 }
-                else {
-                    Picasso.get().load(R.drawable.default_avatar).into(avatar);
-                }
-
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+
+        editNameBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                inputDialog("Change Name", displayname, "name");
+
+            }
+        });
+
+        editHomeLocationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                inputDialog("Location", homeLocation, "home");
+            }
+        });
+
+        editGenderBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                final String[] gender = {"Male", "Female"};
+
+                AlertDialog.Builder genderDialog = new AlertDialog.Builder(SettingsActivity.this);
+                genderDialog.setTitle("What is your gender");
+                genderDialog.setItems(gender, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                        progressDialog = new ProgressDialog(SettingsActivity.this);
+                        progressDialog.setTitle("Saving Changes");
+                        progressDialog.setMessage("Please wait a moment");
+                        progressDialog.show();
+
+
+                        userDatabase.child("gender").setValue(gender[i]).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                if (task.isSuccessful()) {
+                                    progressDialog.dismiss();
+                                    Toast.makeText(SettingsActivity.this, "saved",
+                                            Toast.LENGTH_SHORT).show();
+
+                                }
+                                else{
+                                    progressDialog.hide();
+                                    Toast.makeText(SettingsActivity.this,
+                                            "Oops.. Something went wrong", Toast.LENGTH_SHORT)
+                                            .show();
+                                }
+                            }
+                        });
+
+                    }
+                });
+                genderDialog.show();
 
             }
         });
@@ -137,62 +229,8 @@ public class SettingsActivity extends AppCompatActivity {
                 String uid = currentUser.getUid();
                 userDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(uid);
 
-                // input dialog builder
-                final EditText input = new EditText(SettingsActivity.this);
-                final AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-                builder.setTitle("New Bio");
-                input.setInputType(InputType.TYPE_CLASS_TEXT);
-                String oldBio = nbio.getText().toString();
-                // set old bio into param
-                input.setText(oldBio);
-                // get input value
-                builder.setView(input);
+                inputDialog("New Bio", nbio, "bio");
 
-
-                // make button
-                builder.setPositiveButton("save", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-
-                        final String ninput = input.getText().toString();
-                        progressDialog = new ProgressDialog(SettingsActivity.this);
-                        progressDialog.setTitle("Saving Changes");
-                        progressDialog.setMessage("Please wait a moment");
-                        progressDialog.show();
-
-                        // send to firebase stuff
-
-                        userDatabase.child("bio").setValue(ninput).addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-
-                                if(task.isSuccessful()){
-                                    progressDialog.dismiss();
-                                    Toast.makeText(SettingsActivity.this, "saved", Toast.LENGTH_SHORT).show();
-
-                                }
-                                else {
-                                    progressDialog.hide();
-                                    Toast.makeText(SettingsActivity.this, "Oops.. Something went wrong", Toast.LENGTH_SHORT).show();
-
-                                }
-                            }
-                        });
-
-                    }
-
-                });
-
-                // cancel btn
-                builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        dialogInterface.cancel();
-                    }
-                });
-
-                builder.show();
             }
         });
 
@@ -207,6 +245,68 @@ public class SettingsActivity extends AppCompatActivity {
                         .start(SettingsActivity.this);
             }
         });
+    }
+
+
+    // instead of passing String userDatabaseKey, it is better to pass Query of the database ref
+    public void inputDialog(String title, TextView textView, final String userDatabaseKey){
+
+        // input dialog builder
+        final EditText input = new EditText(SettingsActivity.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+        builder.setTitle(title);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
+        String oldStuff = textView.getText().toString();
+        // set old bio into param
+        input.setText(oldStuff);
+        // get input value
+        builder.setView(input);
+
+        // make button
+        builder.setPositiveButton("save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+
+                final String ninput = input.getText().toString();
+                progressDialog = new ProgressDialog(SettingsActivity.this);
+                progressDialog.setTitle("Saving Changes");
+                progressDialog.setMessage("Please wait a moment");
+                progressDialog.show();
+
+                // send to firebase stuff
+
+                userDatabase.child(userDatabaseKey).setValue(ninput).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                        if(task.isSuccessful()){
+                            progressDialog.dismiss();
+                            Toast.makeText(SettingsActivity.this, "saved", Toast.LENGTH_SHORT).show();
+
+                        }
+                        else {
+                            progressDialog.hide();
+                            Toast.makeText(SettingsActivity.this, "Oops.. Something went wrong", Toast.LENGTH_SHORT).show();
+
+                        }
+                    }
+                });
+
+            }
+
+        });
+
+        // cancel btn
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.cancel();
+            }
+        });
+
+        builder.show();
+
     }
 
 

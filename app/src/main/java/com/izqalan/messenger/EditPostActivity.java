@@ -18,11 +18,13 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -66,6 +68,7 @@ public class EditPostActivity extends AppCompatActivity {
     private TextView location;
     private Button editDate;
     private Button editTime;
+
 
 
     private FloatingActionButton createPostBtn;
@@ -121,7 +124,6 @@ public class EditPostActivity extends AppCompatActivity {
         checkList = findViewById(R.id.edit_checklist);
         addList = findViewById(R.id.input_list);
         insertListBtn = findViewById(R.id.input_list_btn);
-
 
 
 

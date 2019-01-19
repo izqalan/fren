@@ -1,5 +1,6 @@
 package com.izqalan.messenger;
 
+import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +45,8 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference notificationDB;
     private DatabaseReference rootRef;
 
+    private TextView profileGender;
+    private TextView profileLocation;
     private TextView profileName;
     private TextView profileBio;
     private ImageView profileImage;
@@ -84,7 +87,8 @@ public class ProfileActivity extends AppCompatActivity {
         newTabLAyout = findViewById(R.id.profile_tabs);
         newTabLAyout.setupWithViewPager(vp);
 
-
+        profileGender = findViewById(R.id.profile_gender);
+        profileLocation = findViewById(R.id.profile_location);
         profileImage = findViewById(R.id.profile_image);
         profileName = findViewById(R.id.profile_name);
         profileBio = findViewById(R.id.profile_bio);
@@ -117,34 +121,51 @@ public class ProfileActivity extends AppCompatActivity {
         userDatabse.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                String name = dataSnapshot.child("name").getValue().toString();
-                final String image = dataSnapshot.child("image").getValue().toString();
-                String bio = dataSnapshot.child("bio").getValue().toString();
+                if(dataSnapshot.exists()) {
 
-                profileName.setText(name);
-                profileBio.setText(bio);
+                    String name = dataSnapshot.child("name").getValue().toString();
+                    final String image = dataSnapshot.child("image").getValue().toString();
+                    String bio = dataSnapshot.child("bio").getValue().toString();
+                    String gender = dataSnapshot.child("gender").getValue().toString();
+                    String home = dataSnapshot.child("home").getValue().toString();
 
-                // retrieve image offline first
-                Picasso.get().load(image).placeholder(R.drawable.default_avatar).networkPolicy(NetworkPolicy.OFFLINE).into(profileImage, new Callback() {
-                    @Override
-                    public void onSuccess() {
+                    if (gender.equals("Male")){
+                        profileGender.setTextColor(Color.BLUE);
+                    }else if(gender.equals("Female")){
+                        profileGender.setTextColor(Color.RED);
+                    }
+                    profileGender.setText(gender);
 
+                    if(home.equals("unspecified")){
+                       profileLocation.setVisibility(View.GONE);
                     }
 
-                    @Override
-                    public void onError(Exception e) {
+                    profileLocation.setText(home);
+                    profileName.setText(name);
+                    profileBio.setText(bio);
 
-                        // when image haven't store on disk, picasso look out for image.
-                        Picasso.get()
-                                .load(image)
-                                .placeholder(R.drawable.default_avatar)
-                                .error(R.drawable.default_avatar)
-                                .into(profileImage);
+                    // retrieve image offline first
+                    Picasso.get().load(image).placeholder(R.drawable.default_avatar).networkPolicy(NetworkPolicy.OFFLINE).into(profileImage, new Callback() {
+                        @Override
+                        public void onSuccess() {
 
-                    }
-                });
+                        }
 
+                        @Override
+                        public void onError(Exception e) {
 
+                            // when image haven't store on disk, picasso look out for image.
+                            Picasso.get()
+                                    .load(image)
+                                    .placeholder(R.drawable.default_avatar)
+                                    .error(R.drawable.default_avatar)
+                                    .into(profileImage);
+
+                        }
+
+                    });
+
+                }
 
                 // Live DB checker
 
