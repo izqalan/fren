@@ -199,7 +199,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 Log.d(TAG, "friendship: is "+ friendship );
                 // check friendship status for the button
-                friendDatabase.child(currentUser.getUid()).child("received").addListenerForSingleValueEvent(new ValueEventListener() {
+                friendDatabase.child(currentUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
