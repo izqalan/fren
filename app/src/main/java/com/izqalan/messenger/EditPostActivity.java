@@ -223,8 +223,11 @@ public class EditPostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                // open maps activity
                 Intent intent = new Intent(EditPostActivity.this, MapsActivity.class);
-                // listen for result from another intent
+
+                // listen for result from another intent & send a request code
+                // of which function to be executed for result
                 startActivityForResult(intent, 1);
 
 
@@ -343,7 +346,10 @@ public class EditPostActivity extends AppCompatActivity {
                     //  timestamp always increasing. firebase read from the smallest(old timestamp) to the latest
                     // by negging the timestamp firebase will able to read the
                     // data from the latest inserted timestamp
-                    postVal.put("timestamp", -1 * new Date().getTime());
+
+                    int timestamp = (int) (-1 * new Date().getTime());
+//                    postVal.put("timestamp", -1 * new Date().getTime());
+                    postVal.put("timestamp", timestamp);
 
 
                     if (postVal.get("image") == null){
@@ -357,6 +363,8 @@ public class EditPostActivity extends AppCompatActivity {
                     storeMap.put(userPostRef+postId, postVal);
 //                storeMap.put("Posts/"+pushId+"/collab/"+currentUser+"/thumb_image", current_user_thumb);
 
+                    DatabaseReference history = FirebaseDatabase.getInstance().getReference().child("History");
+                    history.child(currentUser).child(postId).child("timestamp").setValue(timestamp);
                     rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {

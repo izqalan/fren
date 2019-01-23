@@ -11,12 +11,11 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int i) {
         switch(i){
             case 0:
-                FriendsFragment friendsFragment = new FriendsFragment();
-                return friendsFragment;
+                return new FriendsFragment();
             case 1:
 //                TODO: Make user post fragment !! chat Fragment is a temp placeholder
-                ChatFragment chatFragment = new ChatFragment();
-                return chatFragment;
+
+                return new PostHistoryFragment();
 
             default:
                 return null;
@@ -34,7 +33,7 @@ public class ProfilePagerAdapter extends FragmentPagerAdapter {
             case 0:
                 return "Friends";
             case 1:
-                return "Posts";
+                return "Posts history";
 
             default:
                 return null;

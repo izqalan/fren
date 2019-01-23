@@ -512,6 +512,8 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
         popup.show();
     }
 
+
+    // popup
     @Override
     public boolean onMenuItemClick(MenuItem menuItem) {
 
@@ -535,12 +537,15 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
 
             case R.id.delete_post_btn:
                 finish();
+                final DatabaseReference history = FirebaseDatabase.getInstance().getReference().child("History");
                 postDatabase.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
-                        Toast.makeText(PostActivity.this, "Post removed", Toast.LENGTH_SHORT).show();
-                        adapter.notifyDataSetChanged();
-
+                        if (task.isSuccessful()) {
+                            history.child(ownerId).child(postId).removeValue();
+                            Toast.makeText(PostActivity.this, "Post removed", Toast.LENGTH_SHORT).show();
+                            adapter.notifyDataSetChanged();
+                        }
                     }
                 });
 

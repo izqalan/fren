@@ -29,6 +29,8 @@ import com.squareup.picasso.Callback;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.util.Objects;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -37,7 +39,6 @@ public class PostingFragment extends Fragment {
 
     private FirebaseAuth mAuth;
 
-    private View mainView;
     private RecyclerView postList;
     private CardView postCard;
 
@@ -59,7 +60,7 @@ public class PostingFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        mainView = inflater.inflate(R.layout.fragment_posting, container, false);
+        View mainView = inflater.inflate(R.layout.fragment_posting, container, false);
 
         postList = mainView.findViewById(R.id.post_list);
         postCard = mainView.findViewById(R.id.post_card);
@@ -79,7 +80,7 @@ public class PostingFragment extends Fragment {
         bindAdapter();
 
 
-        return  mainView;
+        return mainView;
     }
 
     private void bindAdapter() {
@@ -94,7 +95,7 @@ public class PostingFragment extends Fragment {
 
         adapter = new FirebaseRecyclerAdapter<Posts, PostViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull final PostViewHolder holder, final int position, @NonNull Posts model) {
+            protected void onBindViewHolder(@NonNull final PostViewHolder holder, final int position, @NonNull final Posts model) {
 
                 final String post_id = getRef(position).getKey();
                 Log.d(TAG, "post_id: "+ post_id);
@@ -105,12 +106,15 @@ public class PostingFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(dataSnapshot.exists()) {
-                            final String foodName = dataSnapshot.child("foodname").getValue().toString();
-                            final String image = dataSnapshot.child("image").getValue().toString();
-                            final String date = dataSnapshot.child("date").getValue().toString();
-                            final String time = dataSnapshot.child("time").getValue().toString();
-                            final String owner = dataSnapshot.child("owner").getValue().toString();
-                            final String address = dataSnapshot.child("address").getValue().toString();
+
+                            // Objects.requireNonNull() throws nullpo exception
+                            // https://stackoverflow.com/questions/29864642/is-objects-requirenonnull-less-efficient-than-the-old-way#29864679
+                            final String foodName = Objects.requireNonNull(dataSnapshot.child("foodname").getValue()).toString();
+                            final String image = Objects.requireNonNull(dataSnapshot.child("image").getValue()).toString();
+                            final String date = Objects.requireNonNull(dataSnapshot.child("date").getValue()).toString();
+                            final String time = Objects.requireNonNull(dataSnapshot.child("time").getValue()).toString();
+                            final String owner = Objects.requireNonNull(dataSnapshot.child("owner").getValue()).toString();
+                            final String address = Objects.requireNonNull(dataSnapshot.child("address").getValue()).toString();
 
 
 
@@ -131,13 +135,13 @@ public class PostingFragment extends Fragment {
                             holder.v.setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
+
                                     // go to new page that shows more detail about the event
                                     Intent intent = new Intent(getContext(), PostActivity.class);
                                     intent.putExtra("user_id", owner);
                                     intent.putExtra("uid", currentUserId);
                                     intent.putExtra("post_id", post_id);
                                     intent.putExtra("image", image);
-
 
                                     startActivity(intent);
 
