@@ -55,11 +55,14 @@
             android:screenOrientation="portrait" />
         <activity
             android:name="com.theartofdev.edmodo.cropper.CropImageActivity"
-            android:theme="@style/Base.Theme.AppCompat" />
+            android:theme="@style/Base.Theme.AppCompat"/>
         <activity
             android:name=".UserActivity"
-            android:parentActivityName=".MainActivity" />
-        <activity android:name=".ProfileActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ProfileActivity"
+            android:screenOrientation="portrait">
+
             <intent-filter>
                 <action android:name="com.izqalan.messenger_TARGET_NOTIFICATION" />
 
@@ -68,9 +71,11 @@
         </activity>
         <activity
             android:name=".ChatActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity" />
         <activity
             android:name=".EditPostActivity"
+            android:screenOrientation="portrait"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="stateVisible|adjustResize" />
         <!--
@@ -87,9 +92,11 @@
 
         <activity
             android:name=".MapsActivity"
+            android:screenOrientation="portrait"
             android:label="@string/title_activity_maps"
             android:parentActivityName=".EditPostActivity" />
-        <activity android:name=".PostActivity" />
+        <activity android:name=".PostActivity"
+            android:screenOrientation="portrait"/>
         <activity android:name=".OnBoarding">
         </activity>
     </application>

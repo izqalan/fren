@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="2dp">
+    android:layout_marginTop="2dp"
+    android:background="@drawable/white_flat_card"
+    android:padding="15dp"
+    android:elevation="1dp">
 
     <TextView
         android:id="@+id/item"
@@ -11,8 +14,10 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:layout_marginStart="61dp"
-        android:layout_marginTop="13dp"
+        android:layout_marginStart="60dp"
+        android:layout_marginTop="5dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="5dp"
         android:text="Item"
         android:textColor="@color/browser_actions_text_color"
         android:textSize="16sp" />

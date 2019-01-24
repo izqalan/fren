@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Messenger</string>
+    <string name="app_name">Collab Kitchen</string>
     <string name="new_account">New account</string>
     <string name="logout">Logout</string>
     <string name="create_new_account">Create new account</string>

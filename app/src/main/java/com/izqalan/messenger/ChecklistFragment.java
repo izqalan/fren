@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -158,6 +159,8 @@ public class ChecklistFragment extends Fragment {
         public ListViewHolder(@NonNull View itemView) {
             super(itemView);
             v = itemView;
+            ImageButton removeBtn = v.findViewById(R.id.remove_list_btn);
+            removeBtn.setVisibility(View.GONE);
         }
 
         public void setItem(String item){
