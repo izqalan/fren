@@ -62,6 +62,12 @@ public class LoginActivity extends AppCompatActivity {
                 String log_email = email.getText().toString();
                 String log_pwd = password.getText().toString();
 
+                if(TextUtils.isEmpty(log_email) || TextUtils.isEmpty(log_pwd) ){
+
+                    email.setError("this field cannot be empty");
+
+                }
+
                 if(!TextUtils.isEmpty(log_email) || !TextUtils.isEmpty(log_pwd)){
                     logProgress.setTitle("Please wait...");
                     logProgress.setMessage("Logging in to your account");
@@ -98,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             logProgress.hide();
-                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                            Toast.makeText(LoginActivity.this, task.getException().getMessage(),
                                     Toast.LENGTH_SHORT).show();
 
                         }
