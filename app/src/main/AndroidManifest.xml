@@ -72,7 +72,7 @@
         <activity
             android:name=".EditPostActivity"
             android:parentActivityName=".MainActivity"
-            android:windowSoftInputMode="stateVisible|adjustResize"/>
+            android:windowSoftInputMode="stateVisible|adjustResize" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
              (See the file "res/values/google_maps_api.xml").
@@ -89,8 +89,9 @@
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps"
             android:parentActivityName=".EditPostActivity" />
-        <activity android:name=".PostActivity"></activity>
-
+        <activity android:name=".PostActivity" />
+        <activity android:name=".OnBoarding">
+        </activity>
     </application>
 
 </manifest>

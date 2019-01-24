@@ -95,7 +95,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void gotoStart() {
-        Intent intent = new Intent(MainActivity.this, StartActivity.class);
+        Intent intent = new Intent(MainActivity.this, OnBoarding.class);
         startActivity(intent);
         finish();
     }
