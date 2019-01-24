@@ -395,11 +395,23 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
                         if(dataSnapshot.exists()){
+
+                            // actually thumb_image & username can be declared in this inner class
                             thumb_image[0] = dataSnapshot.child("thumb_image").getValue().toString();
                             username[0] = dataSnapshot.child("name").getValue().toString();
                             Log.d(TAG, "thumb_image: "+ thumb_image[0]);
                             holder.setThumbImage(thumb_image[0]);
 
+                            // extract first name or name before a space
+                            // but this method will crashed if the name dont have spaces
+                            try{
+                                holder.setName(username[0].substring(0, username[0].indexOf(' ')));
+                            }catch (Exception e){
+                                Log.e(TAG, e.getMessage());
+                                holder.setName(username[0]);
+                            }
+
+                            Log.d(TAG, "user name"+ username[0]);
 
                         }
 
@@ -496,6 +508,11 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
             CircleImageView user_avatar = v.findViewById(R.id.collab_avatar);
             Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar).into(user_avatar);
 
+        }
+
+        public void setName(String name){
+            TextView displayName = v.findViewById(R.id.avatar_name);
+            displayName.setText(name);
         }
 
 
