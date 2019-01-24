@@ -71,7 +71,7 @@ public class EditPostActivity extends AppCompatActivity {
 
 
 
-    private FloatingActionButton createPostBtn;
+    private Button createPostBtn;
     private ImageView foodImg;
     private RecyclerView checkList;
     private RecyclerView.Adapter<EditListAdapter.EditListViewHolder> adapter;
@@ -441,7 +441,7 @@ public class EditPostActivity extends AppCompatActivity {
         items.add(new ListItem(item));
         Log.d(TAG, "items.indexof(): "+ adapter.getItemCount());
         adapter.notifyItemInserted(adapter.getItemCount());
-        Toast.makeText(this, "Item added", Toast.LENGTH_SHORT);
+        Toast.makeText(this, item+" added", Toast.LENGTH_SHORT).show();
 
     }
 
