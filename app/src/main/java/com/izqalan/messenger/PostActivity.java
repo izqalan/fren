@@ -347,8 +347,8 @@ public class PostActivity extends AppCompatActivity implements PopupMenu.OnMenuI
                             // when image haven't store on disk, picasso look out for image.
                             Picasso.get()
                                     .load(thumb_image)
-                                    .placeholder(R.drawable.default_avatar)
-                                    .error(R.drawable.default_avatar)
+                                    .placeholder(R.drawable.default_food)
+                                    .error(R.drawable.default_food)
                                     .into(postImage);
                         }
                     });

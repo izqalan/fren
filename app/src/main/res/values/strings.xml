@@ -2,7 +2,7 @@
     <string name="app_name">Messenger</string>
     <string name="new_account">New account</string>
     <string name="logout">Logout</string>
-    <string name="create_new_account">create new account</string>
+    <string name="create_new_account">Create new account</string>
     <string name="already_have_an_account">Already have an account</string>
 
     <!-- TODO: Remove or change this placeholder text -->

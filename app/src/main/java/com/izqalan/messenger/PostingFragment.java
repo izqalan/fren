@@ -1,6 +1,7 @@
 package com.izqalan.messenger;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -197,7 +199,7 @@ public class PostingFragment extends Fragment {
             final ImageView foodImageView = v.findViewById(R.id.post_image);
             // picasso load here
 
-            Picasso.get().load(image).placeholder(R.drawable.default_avatar).networkPolicy(NetworkPolicy.OFFLINE).into(foodImageView, new Callback() {
+            Picasso.get().load(image).placeholder(R.drawable.default_food).networkPolicy(NetworkPolicy.OFFLINE).into(foodImageView, new Callback() {
                 @Override
                 public void onSuccess() {
 
@@ -206,10 +208,12 @@ public class PostingFragment extends Fragment {
                 @Override
                 public void onError(Exception e) {
                     // when image haven't store on disk, picasso look out for image.
+//                    Toast.makeText(v.getContext(), e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+
                     Picasso.get()
                             .load(image)
-                            .placeholder(R.drawable.default_avatar)
-                            .error(R.drawable.default_avatar)
+                            .placeholder(R.drawable.default_food)
+                            .error(R.drawable.default_food)
                             .into(foodImageView);
 
                 }
