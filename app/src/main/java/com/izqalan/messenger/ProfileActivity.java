@@ -166,9 +166,33 @@ public class ProfileActivity extends AppCompatActivity {
                     });
 
                 }
-
                 // Live DB checker
 
+                // for sender
+                friendRequestDB.child(currentUser.getUid()).child("sent").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                        if (dataSnapshot.hasChild(uid)){
+                            String req_type = dataSnapshot.child(uid).child("request_type").getValue().toString();
+
+                            if(req_type.equals("sent")){
+                                friendship = "req_sent";
+                                declineBtn.setVisibility(View.GONE);
+                                requestBtn.setText("cancel request");
+                            }
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                    }
+                });
+
+
+                // for receiver
                 friendRequestDB.child(currentUser.getUid()).child("received").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -181,10 +205,6 @@ public class ProfileActivity extends AppCompatActivity {
                                 declineBtn.setVisibility(View.VISIBLE);
                                 requestBtn.setText("Accept friend request");
 
-                            }else if(req_type.equals("sent")){
-                                friendship = "req_sent";
-                                declineBtn.setVisibility(View.GONE);
-                                requestBtn.setText("cancel request");
                             }
 
 
