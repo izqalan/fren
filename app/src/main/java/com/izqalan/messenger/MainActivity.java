@@ -20,6 +20,8 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.storage.FirebaseStorage;
 
@@ -34,6 +36,8 @@ public class MainActivity extends AppCompatActivity {
 
     private TabLayout newTabLayout;
 
+    private String currentUser;
+
     private static final String TAG = "MainActivity";
 
     private static final int ERROR_DIALOG_REQUEST = 9001;
@@ -46,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
         // firebase stuff
         mAuth = FirebaseAuth.getInstance();
+
 
         // define instances for toolbar layout
         toolbar = findViewById(R.id.main_toolbar);
@@ -119,6 +124,15 @@ public class MainActivity extends AppCompatActivity {
 
         switch (item.getItemId()){
             case (R.id.main_logout_btn):
+                currentUser = mAuth.getCurrentUser().getUid();
+                DatabaseReference userDatabase = FirebaseDatabase.getInstance().getReference()
+                        .child("Users").child(currentUser).child("device_token");
+
+                try {
+                    userDatabase.removeValue();
+                }catch (Exception e){
+                    Log.e(TAG, e.getMessage());
+                }
                 FirebaseAuth.getInstance().signOut();
                 gotoStart();
                 break;
