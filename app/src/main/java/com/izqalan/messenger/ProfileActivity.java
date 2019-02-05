@@ -1,6 +1,7 @@
 package com.izqalan.messenger;
 
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Build;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -108,6 +109,8 @@ public class ProfileActivity extends AppCompatActivity {
         rootRef = FirebaseDatabase.getInstance().getReference();
 
         userDatabse.keepSynced(true); // stores local copy and sync on data change
+
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.tiny_button_push);
 
         // USER CANNOT SEND REQUEST or DECLINE TO SELF
         if(uid.equals(currentUser.getUid())){
@@ -282,6 +285,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                mp.start();
                 requestBtn.setEnabled(false);
 
                 // SEND FRIEND REQUEST

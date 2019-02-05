@@ -7,6 +7,7 @@ import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -125,11 +126,14 @@ public class EditPostActivity extends AppCompatActivity {
         addList = findViewById(R.id.input_list);
         insertListBtn = findViewById(R.id.input_list_btn);
 
+        //set sound
+        final MediaPlayer mp = MediaPlayer.create(this, R.raw.thud_click);
+
 
 
         // insert item into list
         createItemList();
-        buildRecyclerView();
+        buildRecyclerView(); // set adapter for Itemlist
 
         insertListBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -139,6 +143,8 @@ public class EditPostActivity extends AppCompatActivity {
                     addList.setError("Empty field");
                 }else {
                     insertItem(addList.getText().toString());
+                    Toast.makeText(EditPostActivity.this,
+                            addList.getText().toString() + " added", Toast.LENGTH_SHORT).show();
                     addList.getText().clear();
                 }
 
@@ -162,7 +168,8 @@ public class EditPostActivity extends AppCompatActivity {
             postId = pushPosts.getKey();
 
         }else{
-
+            createPostBtn.setText(R.string.save);
+            // when user want to edit post
             // pull data from PostActivity to edit
             foodName.setText(fromPostIntent.getStringExtra("foodname"));
             description.setText(fromPostIntent.getStringExtra("desc"));
@@ -212,8 +219,8 @@ public class EditPostActivity extends AppCompatActivity {
                 @Override
                 public void onError(Exception e) {
                     // TODO: Pls add default food image
-                    Picasso.get().load(thumb_image).placeholder(R.drawable.default_avatar)
-                            .error(R.drawable.default_avatar).into(foodImg);
+                    Picasso.get().load(thumb_image).placeholder(R.drawable.photo)
+                            .error(R.drawable.photo).into(foodImg);
                 }
             });
 
@@ -291,7 +298,9 @@ public class EditPostActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                String userPostRef = "Posts/";
+                mp.start();
+
+                final String userPostRef = "Posts/";
 
                 if(TextUtils.isEmpty(foodName.getText())){
 
@@ -365,22 +374,55 @@ public class EditPostActivity extends AppCompatActivity {
 
                     DatabaseReference history = FirebaseDatabase.getInstance().getReference().child("History");
                     history.child(currentUser).child(postId).child("timestamp").setValue(timestamp);
+                    progressDialog.setTitle("Creating post");
+                    progressDialog.setMessage("Please wait a moment wile we creating your post");
+                    progressDialog.setCanceledOnTouchOutside(false);
+                    progressDialog.show();
                     rootRef.updateChildren(storeMap, new DatabaseReference.CompletionListener() {
                         @Override
                         public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
 
                             if (databaseError != null){
                                 Log.e(TAG, databaseError.getMessage());
+                                progressDialog.hide();
+                                Toast.makeText(EditPostActivity.this, databaseError.getMessage(), Toast.LENGTH_LONG).show();
+
                             }
                             if (databaseError == null){
 
                                 rootRef.child("Posts").child(postId).child("collab").child(currentUser)
                                         .child("timestamp").setValue(ServerValue.TIMESTAMP);
 
-                                progressDialog.setTitle("Creating post");
-                                progressDialog.setMessage("Please wait a moment wile we creating your post");
-                                progressDialog.setCanceledOnTouchOutside(false);
-                                progressDialog.show();
+                                // storing item list
+                                // bad solution imo
+                                // generate new id to store items in db
+                                if (!items.isEmpty()){
+
+                                    HashMap<String, String> listMap = new HashMap<>();
+
+                                    for (ListItem value: items){
+                                        DatabaseReference pushList = postsDatabase.child(postId).child("checklist").push();
+                                        itemId = pushList.getKey();
+
+                                        String i = value.getItem();
+                                        listMap.put("item", i);
+
+                                        Map<String, Object> storeMap2 = new HashMap<>();
+                                        storeMap2.put(userPostRef+postId+"/checklist/"+itemId, listMap);
+
+                                        rootRef.updateChildren(storeMap2, new DatabaseReference.CompletionListener() {
+                                            @Override
+                                            public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
+
+//                                                Toast.makeText(EditPostActivity.this,"checklist created",Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+
+                                    }
+                                }
+
+                                progressDialog.dismiss();
+
                                 Toast.makeText(EditPostActivity.this,"Post created",Toast.LENGTH_LONG).show();
 
                             }
@@ -388,31 +430,7 @@ public class EditPostActivity extends AppCompatActivity {
                         }
                     });
 
-                    // storing item list
-                    if (!items.isEmpty()){
 
-                        HashMap<String, String> listMap = new HashMap<>();
-
-
-                        for (ListItem value: items){
-                            DatabaseReference pushList = postsDatabase.child(postId).child("checklist").push();
-                            itemId = pushList.getKey();
-
-                            String i = value.getItem();
-                            listMap.put("item", i);
-
-                            Map<String, Object> storeMap2 = new HashMap<>();
-                            storeMap2.put(userPostRef+postId+"/checklist/"+itemId, listMap);
-
-                            rootRef.updateChildren(storeMap2, new DatabaseReference.CompletionListener() {
-                                @Override
-                                public void onComplete(@Nullable DatabaseError databaseError, @NonNull DatabaseReference databaseReference) {
-                                    Toast.makeText(EditPostActivity.this,"checklist created",Toast.LENGTH_LONG).show();
-                                }
-                            });
-
-                        }
-                    }
                 }
 
             }
@@ -441,7 +459,7 @@ public class EditPostActivity extends AppCompatActivity {
         items.add(new ListItem(item));
         Log.d(TAG, "items.indexof(): "+ adapter.getItemCount());
         adapter.notifyItemInserted(adapter.getItemCount());
-        Toast.makeText(this, item+" added", Toast.LENGTH_SHORT).show();
+
 
     }
 
@@ -565,8 +583,8 @@ public class EditPostActivity extends AppCompatActivity {
                                                     @Override
                                                     public void onError(Exception e) {
                                                         // TODO: Pls add default food image
-                                                        Picasso.get().load(downloadUrl).placeholder(R.drawable.default_avatar)
-                                                                .error(R.drawable.default_avatar).into(foodImg);
+                                                        Picasso.get().load(downloadUrl).placeholder(R.drawable.photo)
+                                                                .error(R.drawable.photo).into(foodImg);
                                                     }
                                                 });
 
