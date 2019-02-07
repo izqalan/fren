@@ -12,6 +12,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -41,7 +42,7 @@ public class ChatFragment extends Fragment {
     private RecyclerView chatListView;
     private View mainView;
     private FirebaseRecyclerAdapter adapter;
-
+    private ImageView noMessageImg;
     // firebase database
     private FirebaseAuth mAuth;
 
@@ -63,6 +64,7 @@ public class ChatFragment extends Fragment {
         mainView = inflater.inflate(R.layout.fragment_chat, container, false);
 
         chatListView = mainView.findViewById(R.id.chat_list);
+        noMessageImg = mainView.findViewById(R.id.no_messages);
 
         final String currentUid = mAuth.getInstance().getCurrentUser().getUid();
 //        chatDatabase = FirebaseDatabase.getInstance().getReference().child("Messages").child(currentUid);
@@ -133,25 +135,30 @@ public class ChatFragment extends Fragment {
                 userDatabase.child(list_user_id).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                        final String username = dataSnapshot.child("name").getValue().toString();
-                        final String thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
+                        if (dataSnapshot.exists()) {
 
-                        holder.setName(username);
-                        holder.setThumbImage(thumbImage);
+                            noMessageImg.setVisibility(View.GONE);
 
-                        holder.v.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
+                            final String username = dataSnapshot.child("name").getValue().toString();
+                            final String thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
 
-                                Intent intent = new Intent(getContext(), ChatActivity.class);
-                                intent.putExtra("user_id", list_user_id);
-                                intent.putExtra("name", username);
-                                intent.putExtra("avatar", thumbImage);
-                                startActivity(intent);
+                            holder.setName(username);
+                            holder.setThumbImage(thumbImage);
 
-                            }
+                            holder.v.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
 
-                        });
+                                    Intent intent = new Intent(getContext(), ChatActivity.class);
+                                    intent.putExtra("user_id", list_user_id);
+                                    intent.putExtra("name", username);
+                                    intent.putExtra("avatar", thumbImage);
+                                    startActivity(intent);
+
+                                }
+
+                            });
+                        }
 
                     }
 

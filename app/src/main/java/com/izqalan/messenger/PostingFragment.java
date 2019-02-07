@@ -43,6 +43,7 @@ public class PostingFragment extends Fragment {
 
     private RecyclerView postList;
     private CardView postCard;
+    private ImageView emptyDataImg;
 
     private FirebaseRecyclerAdapter adapter;
 
@@ -66,6 +67,7 @@ public class PostingFragment extends Fragment {
 
         postList = mainView.findViewById(R.id.post_list);
         postCard = mainView.findViewById(R.id.post_card);
+        emptyDataImg = mainView.findViewById(R.id.empty_data_set);
 
         // passed from mainActivity
         final String uid = getActivity().getIntent().getStringExtra("user_id");
@@ -75,6 +77,7 @@ public class PostingFragment extends Fragment {
         }
 
         postDatabase = FirebaseDatabase.getInstance().getReference().child("Posts");
+        postDatabase.keepSynced(true);
 
         postList.setHasFixedSize(true);
         postList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -109,6 +112,7 @@ public class PostingFragment extends Fragment {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         if(dataSnapshot.exists()) {
 
+                            emptyDataImg.setVisibility(View.GONE);
                             // Objects.requireNonNull() throws nullpo exception
                             // https://stackoverflow.com/questions/29864642/is-objects-requirenonnull-less-efficient-than-the-old-way#29864679
                             final String foodName = Objects.requireNonNull(dataSnapshot.child("foodname").getValue()).toString();

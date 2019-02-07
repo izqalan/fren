@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
@@ -32,6 +33,7 @@ public class PostHistoryFragment extends Fragment {
 
 	private FirebaseRecyclerAdapter adapter;
 	private RecyclerView postHistoryList;
+	private ImageView emptyDataSetImage;
 
 	private FirebaseAuth mAuth;
 
@@ -60,6 +62,8 @@ public class PostHistoryFragment extends Fragment {
 		postHistory = FirebaseDatabase.getInstance().getReference().child("History").child(uid);
 		postDatabase = FirebaseDatabase.getInstance().getReference().child("Posts");
 
+		emptyDataSetImage = mainView.findViewById(R.id.empty_data_set);
+
 		postHistoryList = mainView.findViewById(R.id.post_history_list);
 		postHistoryList.setHasFixedSize(true);
 		postHistoryList.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -84,6 +88,7 @@ public class PostHistoryFragment extends Fragment {
 
 				final String post_id = getRef(position).getKey();
 
+
 				postDatabase.child(post_id).addValueEventListener(new ValueEventListener() {
 					@Override
 					public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -91,8 +96,7 @@ public class PostHistoryFragment extends Fragment {
 
 						if(dataSnapshot.exists()) {
 
-
-
+                            emptyDataSetImage.setVisibility(View.GONE);
 							// Objects.requireNonNull() throws nullpo exception
 							// https://stackoverflow.com/questions/29864642/is-objects-requirenonnull-less-efficient-than-the-old-way#29864679
 							final String foodName = Objects.requireNonNull(dataSnapshot.child("foodname").getValue()).toString();

@@ -10,6 +10,10 @@
         android:id="@+id/request_list"
         android:layout_width="match_parent"
         android:layout_height="150dp"
+        android:layout_below="@+id/collab_request_textView2"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="15dp"
         android:clipChildren="false" />
 
 
@@ -35,6 +39,20 @@
         android:layout_marginTop="19dp"
         android:fontFamily="sans-serif-smallcaps"
         android:text="Collab request"
+        android:textColor="#000"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/collab_request_textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:layout_marginStart="11dp"
+        android:layout_marginTop="9dp"
+        android:fontFamily="sans-serif-smallcaps"
+        android:text="Friend request"
         android:textColor="#000"
         android:textSize="18sp"
         android:textStyle="bold" />

@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -41,6 +42,7 @@ public class FriendsFragment extends Fragment {
     private FirebaseAuth mAuth;
 
     private View mainView;
+    private ImageView noFirendImg;
 
     private String currentUserId;
 
@@ -61,6 +63,7 @@ public class FriendsFragment extends Fragment {
 
 
         friendList =  mainView.findViewById(R.id.friends_list);
+        noFirendImg = mainView.findViewById(R.id.no_friend);
 
         /*
         * show friends list based on individual user friends list
@@ -101,53 +104,57 @@ public class FriendsFragment extends Fragment {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
 
-                        final String username = dataSnapshot.child("name").getValue().toString();
-                        final String thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
-                        String bio = dataSnapshot.child("bio").getValue().toString();
+                        if(dataSnapshot.exists()) {
+
+                            noFirendImg.setVisibility(View.GONE);
+
+                            final String username = dataSnapshot.child("name").getValue().toString();
+                            final String thumbImage = dataSnapshot.child("thumb_image").getValue().toString();
+                            String bio = dataSnapshot.child("bio").getValue().toString();
 
 
+                            holder.setName(username);
+                            holder.setBio(bio);
+                            holder.setThumbImage(thumbImage);
 
-                        holder.setName(username);
-                        holder.setBio(bio);
-                        holder.setThumbImage(thumbImage);
+                            holder.v.setOnClickListener(new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
 
-                        holder.v.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
+                                    final CharSequence option[] = new CharSequence[]{"Open profile", "Send message"};
 
-                                final CharSequence option[] = new CharSequence[]{"Open profile", "Send message"};
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                                    builder.setTitle("Select option");
+                                    builder.setItems(option, new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
 
-                                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                                builder.setTitle("Select option");
-                                builder.setItems(option, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialogInterface, int i) {
+                                            // check array of option[]
+                                            if (i == 0) {
 
-                                        // check array of option[]
-                                        if (i == 0){
+                                                Intent intent = new Intent(getContext(), ProfileActivity.class);
+                                                intent.putExtra("user_id", user_id);
+                                                startActivity(intent);
 
-                                            Intent intent = new Intent(getContext(), ProfileActivity.class);
-                                            intent.putExtra("user_id", user_id);
-                                            startActivity(intent);
+                                            }
+                                            if (i == 1) {
 
+                                                Intent intent = new Intent(getContext(), ChatActivity.class);
+                                                intent.putExtra("user_id", user_id);
+                                                intent.putExtra("name", username);
+                                                intent.putExtra("avatar", thumbImage);
+                                                startActivity(intent);
+
+
+                                            }
                                         }
-                                        if(i == 1){
+                                    });
 
-                                            Intent intent = new Intent(getContext(), ChatActivity.class);
-                                            intent.putExtra("user_id", user_id);
-                                            intent.putExtra("name", username);
-                                            intent.putExtra("avatar", thumbImage);
-                                            startActivity(intent);
+                                    builder.show();
 
-
-                                        }
-                                    }
-                                });
-
-                                builder.show();
-
-                            }
-                        });
+                                }
+                            });
+                        }
 
 
                     }
