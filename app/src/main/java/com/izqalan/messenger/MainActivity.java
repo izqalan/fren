@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity {
 
     // when option from toolbar is selected
     // the 3 dots on the top right
+    // menu
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         super.onOptionsItemSelected(item);
@@ -143,7 +144,9 @@ public class MainActivity extends AppCompatActivity {
                 break;
 
             case (R.id.main_all_btn):
-                Intent Uintent = new Intent(MainActivity.this, UserActivity.class);
+                Intent Uintent = new Intent(MainActivity.this, ProfileActivity.class);
+                currentUser = mAuth.getCurrentUser().getUid();
+                Uintent.putExtra("user_id", currentUser);
                 startActivity(Uintent);
                 break;
         }

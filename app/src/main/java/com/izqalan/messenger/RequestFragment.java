@@ -58,6 +58,7 @@ public class RequestFragment extends Fragment {
     private FirebaseRecyclerAdapter<Requests, RequestHolder> adapter;
     private FirebaseRecyclerAdapter<Requests, RequestHolder> collabAdapter;
     private String currentUserId;
+    String foodname;
 
     private static final String TAG = "RequestFragment";
     public RequestFragment() {
@@ -286,6 +287,22 @@ public class RequestFragment extends Fragment {
                             Log.d(TAG, "received "+postId);
                             final String sender = dataSnapshot.child("sender").getValue().toString();
 
+                            // ValueEventListener cannot be nested into another eventValueListener
+                            // asynchronous protocol
+                            postsDatabase.child(postId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                @Override
+                                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                                    if (dataSnapshot.exists()){
+                                        foodname = dataSnapshot.child("foodname").getValue().toString();
+                                    }
+                                }
+
+                                @Override
+                                public void onCancelled(@NonNull DatabaseError databaseError) {
+
+                                }
+                            });
+
                             userDatabse.child(sender).addValueEventListener(new ValueEventListener() {
                                 @Override
                                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -293,11 +310,11 @@ public class RequestFragment extends Fragment {
                                     final String name = dataSnapshot.child("name").getValue().toString();
                                     String image = dataSnapshot.child("thumb_image").getValue().toString();
 
+
+
                                     holder.setThumbImage(image);
                                     holder.setName(name);
-                                    holder.setMessage("Wants to collab with you at "+reqId);
-
-
+                                    holder.setMessage("Wants to collab with you on "+ foodname);
 
 
                                     approveBtn.setOnClickListener(new View.OnClickListener() {
@@ -328,7 +345,8 @@ public class RequestFragment extends Fragment {
 
                                                                 if (databaseError == null){
 
-                                                                    DatabaseReference collabReqSent = FirebaseDatabase.getInstance().getReference().child("Collab_req").child(sender).child("sent");
+                                                                    DatabaseReference collabReqSent = FirebaseDatabase.getInstance().getReference()
+                                                                            .child("Collab_req").child(sender).child("sent");
                                                                     Log.d(TAG, "sender/"+sender);
 
                                                                     final Map<String, Object> sentMap = new HashMap<>();
