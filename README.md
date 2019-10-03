@@ -1,5 +1,5 @@
 # Title
-Diploma compSci FYP UNITEN
+Diploma compSci FYP UNITEN. Built with Google Firebase.
 
 ## Screenshots
 ### on boarding screen
