@@ -90,8 +90,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         }
 
         String z = c.getMessage();
-        // TODO: Remove this before demo
-        Log.e("FUCK", z);
 
         viewHolder.messageText.setText(c.getMessage());
         viewHolder.displayNameText.setText(c.getName());

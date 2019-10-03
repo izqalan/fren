@@ -34,6 +34,7 @@ public class nPagerAdapter extends FragmentPagerAdapter {
         }
     }
 
+    // number of tabs
     @Override
     public int getCount() {
         return 4;

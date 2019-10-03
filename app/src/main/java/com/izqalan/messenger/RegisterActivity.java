@@ -92,9 +92,6 @@ public class RegisterActivity extends AppCompatActivity {
                     registerUser(reg_name, reg_email, reg_password);
                 }
 
-
-
-
             }
         });
     }
