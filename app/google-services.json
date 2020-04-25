@@ -15,7 +15,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "831541654486-65s87o9pg0h5de7bp3hpm4r1piprjve7.apps.googleusercontent.com",
+          "client_id": "",
           "client_type": 1,
           "android_info": {
             "package_name": "com.izqalan.messenger",
@@ -23,13 +23,13 @@
           }
         },
         {
-          "client_id": "831541654486-1fk530use5cghl38e7h7es7h746oj1mm.apps.googleusercontent.com",
+          "client_id": "",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyACe42FuzZRZIORyF6zBY7I682Yv37MK2Y"
+          "current_key": ""
         }
       ],
       "services": {
@@ -40,7 +40,7 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "831541654486-1fk530use5cghl38e7h7es7h746oj1mm.apps.googleusercontent.com",
+              "client_id": "",
               "client_type": 3
             }
           ]
